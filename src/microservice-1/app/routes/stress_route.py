@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, render_template, request
 from marshmallow import ValidationError
-from .schema.stress_schema import StressSchema
+from ..schema.stress_schema import StressSchema
 
 
-stress_bp = Blueprint("stress_bp")
+stress_bp = Blueprint("stress_bp",  __name__)
 stress_schema = StressSchema()
 
 
@@ -20,7 +20,6 @@ def increase_stress():
     return jsonify(
         {
             "message": "success"
-        }
-    ), 200
+        }), 200
 
 

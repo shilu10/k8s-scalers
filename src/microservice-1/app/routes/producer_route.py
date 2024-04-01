@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, render_template, request
 from marshmallow import ValidationError
-from .schema.message_schema import MessageSchema
+from ..schema.message_schema import MessageSchema
 
 
-producer_bp = Blueprint("producer_bp")
+producer_bp = Blueprint("producer_bp",  __name__)
 message_schema = MessageSchema()
 
 
@@ -18,6 +18,6 @@ def post_message():
     except ValidationError as err:
         return jsonify(err.messages), 400
     
-    return jsonify(
+    return jsonify({
         "message": "success"
-    ), 200
+    }), 200
