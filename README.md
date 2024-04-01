@@ -1,1 +1,1 @@
-# DETR-TF2
+# k8s scalers
