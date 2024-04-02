@@ -4,3 +4,4 @@ marshmallow
 psutil
 kubernetes
 boto3
+redis
