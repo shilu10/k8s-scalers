@@ -5,8 +5,4 @@ home_bp = Blueprint("home_bp",  __name__)
 
 @home_bp.route("/")
 def index():
-    return jsonify(
-        {
-            "success": True
-        }
-    )
+    return render_template("index.html")

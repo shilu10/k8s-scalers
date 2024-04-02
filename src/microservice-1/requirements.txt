@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 marshmallow
 psutil
 kubernetes
+boto3

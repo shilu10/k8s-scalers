@@ -5,7 +5,7 @@ from .routes.stress_route import stress_bp
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder="templates")
 
     app.register_blueprint(home_bp)
     app.register_blueprint(producer_bp)

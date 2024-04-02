@@ -1,0 +1,1 @@
+from .base import BaseConfig as Config
