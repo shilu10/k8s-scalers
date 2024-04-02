@@ -5,3 +5,4 @@ psutil
 kubernetes
 boto3
 redis
+pika 
