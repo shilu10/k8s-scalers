@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, validate, ValidationError
 
+
 class MetadataSchema(Schema):
     title = fields.String(required=True, 
                             validate=validate.Length(min=5), 
