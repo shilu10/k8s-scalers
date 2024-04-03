@@ -8,7 +8,7 @@ from ..services.stress_service import stress_ng_cpu, stress_ng_mem, stress_ng_cp
 stress_bp = Blueprint("stress_bp", __name__)
 
 
-@stress_bp.route("/stress_cpu", methods=["POST"])
+@stress_bp.route("/api/v1/stress_cpu", methods=["POST"])
 def increase_stress():
     json_data = request.get_json()
 
@@ -31,7 +31,7 @@ def increase_stress():
     return jsonify({"message": f"CPU stress started for {duration}s using {workers} workers with load {load}"}), 200
 
 
-@stress_bp.route("/stress_mem", methods=["POST"])
+@stress_bp.route("/api/v1/stress_mem", methods=["POST"])
 def increase_stress():
     json_data = request.get_json()
 
@@ -53,7 +53,7 @@ def increase_stress():
     return jsonify({"message": f"Mem stress started for {duration}s  with mem bytes {mem_bytes}"}), 200
 
 
-@stress_bp.route("/stress_mem_cpu", methods=["POST"])
+@stress_bp.route("/api/v1/stress_mem_cpu", methods=["POST"])
 def increase_stress():
     json_data = request.get_json()
 
