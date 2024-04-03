@@ -1,8 +1,5 @@
 import uuid
-import boto3
-import redis
 import os 
-import pika
 import json
 from flask import Blueprint, jsonify, render_template, request, current_app
 from marshmallow import ValidationError
@@ -11,7 +8,6 @@ from ..schema.metadata_schema import MetadataSchema
 from ..services.s3_service import upload_to_bucket
 from ..services.redis_service import put_object
 from ..services.rabbitmq_service import publish_message
-
 
 # blueprint
 producer_bp = Blueprint("producer_bp",  __name__)

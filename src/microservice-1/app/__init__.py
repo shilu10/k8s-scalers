@@ -3,6 +3,7 @@ from .core.config import Config
 from .routes.home_route import home_bp
 from .routes.producer_route import producer_bp
 from .routes.stress_route import stress_bp
+from .routes.health_route import health_bp
 
 
 def create_app():
@@ -10,6 +11,7 @@ def create_app():
 
     app.config.from_object(Config)
     
+    app.register_blueprint(health_bp)
     app.register_blueprint(home_bp)
     app.register_blueprint(producer_bp)
     app.register_blueprint(stress_bp)
