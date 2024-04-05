@@ -3,6 +3,7 @@ from ..models.user_model import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError, DataError, OperationalError
 
+
 def signup_process(email, password):
     try:
         user = User(
@@ -22,7 +23,7 @@ def signup_process(email, password):
         db.session.rollback()
         return {
             "success": False,
-            "message": "Email already exists. Please use a different email."
+            "message": "An unexpected error occurred. Please try again later."
         }
 
     except DataError:

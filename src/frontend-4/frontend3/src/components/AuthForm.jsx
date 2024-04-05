@@ -3,7 +3,6 @@ import { Button, Box, CircularProgress } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormField from './FormField';
-import { toast } from 'react-toastify';
 
 export default function AuthForm({ isLogin }) {
   const [loading, setLoading] = useState(false);
@@ -30,10 +29,9 @@ export default function AuthForm({ isLogin }) {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        let response;
         if (isLogin) {
           // Login API call
-          response = await fetch('http://localhost:8001/api/auth/v1/login', {
+          const response = await fetch('http://localhost:8001/api/auth/v1/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -41,9 +39,11 @@ export default function AuthForm({ isLogin }) {
               password: values.password,
             }),
           });
+          const data = await response.json();
+          console.log('Login Success:', data);
         } else {
           // Sign Up API call
-          response = await fetch('http://localhost:8001/api/auth/v1/signup', {
+          const response = await fetch('http://localhost:8001/api/auth/v1/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -51,20 +51,10 @@ export default function AuthForm({ isLogin }) {
               password: values.password,
             }),
           });
+          const data = await response.json();
+          console.log('Signup Success:', data);
         }
-
-        const data = await response.json();
-        console.log(data)
-
-        // Show toast message on success
-        if (data.success) {
-          toast.success(isLogin ? 'Login Successful!' : 'Signup Successful!');
-        } else {
-          toast.error(data.message || 'Something went wrong');
-        }
-
       } catch (error) {
-        toast.error('An error occurred. Please try again.');
         console.error('Error:', error);
       } finally {
         setLoading(false);

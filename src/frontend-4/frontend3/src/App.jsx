@@ -1,14 +1,10 @@
 import React from 'react';
 import AuthFormContainer from './components/AuthFormContainer';
 import { CssBaseline } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 
 function App() {
   return (
     <>
-      <ToastContainer />
       <CssBaseline />
       <AuthFormContainer />
     </>

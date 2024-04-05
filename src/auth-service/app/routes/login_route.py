@@ -33,5 +33,5 @@ def login():
     
 
     return jsonify({
-        "sucess": True,
+        "success": True,
     }), 200
