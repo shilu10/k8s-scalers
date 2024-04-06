@@ -1,9 +1,12 @@
 from flask import render_template, jsonify, request, Blueprint
 from ..schema.signup_schema import SignUpSchema
 from ..services.signup_service import signup_process
+from flask_cors import CORS
 
 
 signup_bp = Blueprint("signup_bp", __name__)
+CORS(signup_bp, origins=["http://localhost:3000", "https://yourfrontend.com"])
+
 signup_schema = SignUpSchema()
 
 

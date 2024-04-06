@@ -4,6 +4,7 @@ from .routes.login_route import login_bp
 from .routes.signup_route import signup_bp
 from .core.config import Config
 from .core.extensions import db
+from flask_cors import CORS
 
 
 def init_app():

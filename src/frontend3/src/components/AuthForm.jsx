@@ -28,9 +28,37 @@ export default function AuthForm({ isLogin }) {
     validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      await new Promise((r) => setTimeout(r, 1500)); // simulate API
-      alert(JSON.stringify(values, null, 2));
-      setLoading(false);
+      try {
+        if (isLogin) {
+          // Login API call
+          const response = await fetch('http://localhost:8001/api/auth/v1/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: values.email,
+              password: values.password,
+            }),
+          });
+          const data = await response.json();
+          console.log('Login Success:', data);
+        } else {
+          // Sign Up API call
+          const response = await fetch('http://localhost:8001/api/auth/v1/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: values.email,
+              password: values.password,
+            }),
+          });
+          const data = await response.json();
+          console.log('Signup Success:', data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
     },
   });
 

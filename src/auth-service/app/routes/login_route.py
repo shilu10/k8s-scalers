@@ -1,9 +1,12 @@
 from flask import render_template, jsonify, request, Blueprint 
 from ..schema.login_schema import LoginSchema
 from ..services.login_service import login_process
+from flask_cors import CORS
+
 
 
 login_bp = Blueprint("login_bp", __name__)
+CORS(login_bp, origins=["http://localhost:3000", "https://yourfrontend.com"])
 
 login_schema = LoginSchema()
 

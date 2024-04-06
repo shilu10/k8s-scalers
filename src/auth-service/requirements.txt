@@ -7,3 +7,4 @@ boto3
 redis
 pika 
 mysqlclient
+flask-cors
