@@ -8,3 +8,4 @@ redis
 pika 
 mysqlclient
 flask-cors
+flask-jwt-extended

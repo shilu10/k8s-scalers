@@ -1,6 +1,14 @@
 from werkzeug.security import check_password_hash
 from ..models.user_model import User
 from ..core.extensions import db
+from flask_jwt_extended import create_access_token
+
+
+def check_password(user_password, current_password):
+    verification_res = check_password_hash(user_password, current_password)
+
+    return verification_res
+
 
 def login_process(email, password):
     try:
@@ -15,7 +23,7 @@ def login_process(email, password):
             }
 
         # Check password hash
-        password_verification_res = check_password_hash(user.password, password)
+        password_verification_res = check_password(user.password, password)
 
         # If password verification fails
         if not password_verification_res:
@@ -25,9 +33,11 @@ def login_process(email, password):
             }
 
         # If everything is correct
+        access_token = create_access_token(identity=email)
         return {
             "success": True,
-            "message": "Login successful!"
+            "message": "Login successful!",
+            "access_token": access_token
         }
 
     except Exception as err:

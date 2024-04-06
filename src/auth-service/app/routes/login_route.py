@@ -2,7 +2,7 @@ from flask import render_template, jsonify, request, Blueprint
 from ..schema.login_schema import LoginSchema
 from ..services.login_service import login_process
 from flask_cors import CORS
-
+from flask_jwt_extended import set_access_cookies
 
 
 login_bp = Blueprint("login_bp", __name__)
@@ -31,7 +31,10 @@ def login():
             "message": login_validation.get("reason")
         }), 400
     
-
-    return jsonify({
+    response =  jsonify({
         "success": True,
-    }), 200
+        "access_token": login_validation.get("access_token")
+    })
+
+    set_access_cookies(response, login_validation.get("access_token"))
+    return response, 200

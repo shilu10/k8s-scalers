@@ -4,11 +4,17 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError, DataError, OperationalError
 
 
+def get_password_hash(password):
+    hashed_password = generate_password_hash(password)
+    
+    return hashed_password
+
+
 def signup_process(email, password):
     try:
         user = User(
             email=email,
-            password=generate_password_hash(password)
+            password=get_password_hash(password)
         )
 
         db.session.add(user)
