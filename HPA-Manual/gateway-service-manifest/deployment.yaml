@@ -11,20 +11,69 @@ spec:
       env: dev
       app: gateway-service
 
-  replica: 2
+  replicas: 2
   template:
     metadata:
-      env: dev 
-      app: gateway-service
+      labels:
+        env: dev 
+        app: gateway-service
     spec:
       containers:
         - name: gateway-app 
-          image: stress-gateway-service:latest
+          image: 18bit048/stress-gateway-service:latest
           imagePullPolicy: Always
+          env: 
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: redis_host 
+
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: redis_port
+
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: rabbitmq_host
+
+            - name: RABBITMQ_QUEUE_NAME
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: rabbitmq_queue_name
+
+            - name: S3_REGION
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: s3_region
+
+            - name: OBJECT_STORE_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: object_store_bucket_name
+
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: aws_access_key
+
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                configMapKeyRef: 
+                  name: gateway-service
+                  key: aws_secret_access_key
 
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: api/v1/healthz
               port: 8000
 
             initialDelaySeconds: 3
@@ -32,7 +81,7 @@ spec:
 
           startupProbe:
             httpGet:
-              path: /healthz
+              path: api/v1/healthz
               port: 8000
 
             failureThreshold: 30

@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+marshmallow
+psutil
+kubernetes
+boto3
+redis
+pika 
+mysqlclient

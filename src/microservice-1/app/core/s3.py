@@ -10,6 +10,7 @@ def get_s3_client():
             "s3",
             aws_access_key_id=current_app.config["AWS_ACCESS_KEY"],
             aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"],
-            region_name=current_app.config["S3_REGION"]
+            region_name=current_app.config["S3_REGION"],
+            verify=True
         )
     return _s3_client

@@ -9,7 +9,7 @@ stress_bp = Blueprint("stress_bp", __name__)
 
 
 @stress_bp.route("/api/v1/stress_cpu", methods=["POST"])
-def increase_stress():
+def stress_cpu():
     json_data = request.get_json()
 
     try:
@@ -32,7 +32,7 @@ def increase_stress():
 
 
 @stress_bp.route("/api/v1/stress_mem", methods=["POST"])
-def increase_stress():
+def stress_mem():
     json_data = request.get_json()
 
     try:
@@ -54,7 +54,7 @@ def increase_stress():
 
 
 @stress_bp.route("/api/v1/stress_mem_cpu", methods=["POST"])
-def increase_stress():
+def stress_mem_cpu():
     json_data = request.get_json()
 
     try:
