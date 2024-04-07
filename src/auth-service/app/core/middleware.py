@@ -4,7 +4,7 @@ from flask import request, current_app as app
 
 
 def jwt_middleware():
-    skip_paths = ['/api/auth/v1/login', '/api/auth/v1/signup']  # Public endpoints
+    skip_paths = ['/api/auth/v1/login', '/api/auth/v1/signup', '/api/auth/v1/refresh']  # Public endpoints
     if request.path in skip_paths:
         return  # Allow public routes without JWT
     
@@ -21,7 +21,7 @@ def jwt_middleware():
 
     token = parts[1]
     try:
-        payload = jwt.decode(token, app.config.get("JWT_SECRET_KEY"), algorithms=['HS256'])
+        payload = jwt.decode(token, app.config.get("JWT_ACCESS_SECRET_KEY"), algorithms=['HS256'])
         g.current_user = payload['sub']  # Save user info in `g` (Flask's global context)
 
     except jwt.ExpiredSignatureError:

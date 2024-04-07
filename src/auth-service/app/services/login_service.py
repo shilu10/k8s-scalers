@@ -1,7 +1,7 @@
 from werkzeug.security import check_password_hash
 from ..models.user_model import User
 from ..core.extensions import db
-from ..core.utils import create_jwt_token
+from ..core.utils import generate_access_token, generate_refresh_token, decode_jwt_token
 from flask import current_app as app
 from ..core.errors import AuthErrorException
 
@@ -22,7 +22,15 @@ def login_process(email, password):
         raise AuthErrorException("Invalid email or password")  # 🔥 Generic message
 
     # If everything is correct
-    access_token = create_jwt_token(email, app.config.get("JWT_SECRET_KEY"), 15)
+    access_token = generate_access_token(user.id, 
+                                         user.email, 
+                                         app.config.get("JWT_ACCESS_SECRET_KEY"), 
+                                         expiration_minutes=1)
     
-    return access_token
-
+    refresh_token = generate_refresh_token(user.id, 
+                                           user.email, 
+                                           app.config.get("JWT_REFRESH_SECRET_KEY"), 
+                                           expiration_day=7)
+    app.logger.info("Generating Access Token and Refresh Token: %s", email)
+    
+    return access_token, refresh_token

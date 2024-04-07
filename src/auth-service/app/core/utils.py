@@ -1,13 +1,14 @@
 import jwt 
 import datetime 
-import app 
+from flask import current_app as app
 
 
-def create_jwt_token(data, secret_key, expiration_minutes):
+def generate_access_token(user_id, user_email, secret_key, expiration_minutes):
     payload = {
+        'sub': str(user_id), 
         'exp': datetime.datetime.now() + datetime.timedelta(minutes=expiration_minutes),  # expires in 30 minutes
         'iat': datetime.datetime.now(),  # issued at
-        'sub': data  # subject (user data)
+        'email': user_email  # subject (user data)
     }
 
     token = jwt.encode(payload, secret_key, algorithm='HS256')
@@ -16,14 +17,24 @@ def create_jwt_token(data, secret_key, expiration_minutes):
 
 def decode_jwt_token(token, secret_key):
     try:
+        app.logger.info("token: %s %s", token, secret_key)
         payload = jwt.decode(token, secret_key, algorithms=['HS256'])
-        return {
-            "success": True,
-            "data": payload['sub']
-        }  # return the user data
+        return payload
     
     except jwt.ExpiredSignatureError as err:
         raise Exception('Token expired')
     
     except jwt.InvalidTokenError as err:
         raise Exception('Invalid Token')
+
+
+def generate_refresh_token(user_id, user_email, secret_key, expiration_day):
+    payload = {
+        'sub': str(user_id),
+        'iat': datetime.datetime.now(),
+        'exp': datetime.datetime.now() + datetime.timedelta(days=expiration_day),
+        'email': user_email  # subject (user data)
+    }
+
+    token = jwt.encode(payload, secret_key, algorithm="HS256")
+    return token
