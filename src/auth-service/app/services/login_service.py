@@ -1,7 +1,9 @@
 from werkzeug.security import check_password_hash
 from ..models.user_model import User
 from ..core.extensions import db
-from flask_jwt_extended import create_access_token
+from ..core.utils import create_jwt_token
+from flask import current_app
+from ..core.errors import AuthErrorException
 
 
 def check_password(user_password, current_password):
@@ -11,38 +13,15 @@ def check_password(user_password, current_password):
 
 
 def login_process(email, password):
-    try:
-        # Query user by email
-        user = db.session.query(User).filter_by(email=email).first()
+    # Query user by email
+    user = db.session.query(User).filter_by(email=email).first()
 
-        # If user doesn't exist
-        if user is None:
-            return {
-                "success": False,
-                "reason": "User not found."
-            }
+    # If user doesn't exist or password is wrong
+    if user is None or not check_password(user.password, password):
+        raise AuthErrorException("Invalid email or password")  # 🔥 Generic message
 
-        # Check password hash
-        password_verification_res = check_password(user.password, password)
+    # If everything is correct
+    access_token = create_jwt_token(email, current_app.config.get("JWT_SECRET_KEY"), 15)
+    
+    return access_token
 
-        # If password verification fails
-        if not password_verification_res:
-            return {
-                "success": False,
-                "reason": "Invalid password."
-            }
-
-        # If everything is correct
-        access_token = create_access_token(identity=email)
-        return {
-            "success": True,
-            "message": "Login successful!",
-            "access_token": access_token
-        }
-
-    except Exception as err:
-        # Handle unexpected errors
-        return {
-            "success": False,
-            "reason": str(err)
-        }

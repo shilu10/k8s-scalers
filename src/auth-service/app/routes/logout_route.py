@@ -5,7 +5,7 @@ from ..services.logout_service import logout_user
 
 
 logout_bp = Blueprint("logout_bp", __name__)
-CORS(logout_bp, origins=["http://localhost:3000", "https://yourfrontend.com"])
+
 
 @logout_bp.route("/api/auth/v1/logout")
 def logout_with_cookies():

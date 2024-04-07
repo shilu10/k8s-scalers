@@ -2,6 +2,7 @@ from ..core.extensions import db
 from ..models.user_model import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError, DataError, OperationalError
+from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException
 
 
 def get_password_hash(password):
@@ -25,30 +26,14 @@ def signup_process(email, password):
             "message": "User created successfully!"
         }
 
-    except IntegrityError:
+    except IntegrityError as e:
         db.session.rollback()
-        return {
-            "success": False,
-            "message": "An unexpected error occurred. Please try again later."
-        }
+        raise IntegrityErrorException("Email already exists or invalid constraints") from e
 
-    except DataError:
+    except DataError as e:
         db.session.rollback()
-        return {
-            "success": False,
-            "message": "Provided data is invalid or too large."
-        }
+        raise DataError("Provided data is invalid or too large.") from e
 
-    except OperationalError:
+    except OperationalError as e:
         db.session.rollback()
-        return {
-            "success": False,
-            "message": "Database connection problem. Please try again later."
-        }
-
-    except Exception as err:
-        db.session.rollback()
-        return {
-            "success": False,
-            "message": f"Unexpected error: {str(err)}"
-        }
+        raise OperationalError("Database connection problem. Please try again later.") from e 

@@ -1,12 +1,11 @@
-from flask import render_template, jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint
 from ..schema.signup_schema import SignUpSchema
 from ..services.signup_service import signup_process
-from flask_cors import CORS
+from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException
+from ..core.response_builder import success_response, error_response
 
 
 signup_bp = Blueprint("signup_bp", __name__)
-CORS(signup_bp, origins=["http://localhost:3000", "https://yourfrontend.com"])
-
 signup_schema = SignUpSchema()
 
 
@@ -14,28 +13,28 @@ signup_schema = SignUpSchema()
 def signup():
     req_data = request.get_json()
 
+    # Validate schema
     try:
         schema_res = signup_schema.load(req_data)
-
     except Exception as err:
-        return jsonify({
-            "success": False,
-            "message": str(err)
-        }), 400
+        return error_response(str(err), 400)
 
     email = schema_res["email"]
     password = schema_res["password"]
 
-    signup_process_res = signup_process(email, password)
+    # Call signup process
+    try:
+        signup_process_response = signup_process(email, password)
+        return jsonify(signup_process_response), 200
 
-    if not signup_process_res.get("success", False):
-        return jsonify({
-            "success": False,
-            "message": signup_process_res.get("message", "Signup failed.")
-        }), 400
+    except IntegrityErrorException as e:
+        return error_response(str(e), 400)
 
-    return jsonify({
-        "success": True,
-        "message": "Signup successful!"
-    }), 200
+    except DataErrorException as e:
+        return error_response(str(e), 400)
 
+    except OperationalErrorException as e:
+        return error_response(str(e), 500)
+
+    except Exception as e:
+       return error_response(str(e), 500)
