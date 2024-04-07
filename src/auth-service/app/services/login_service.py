@@ -2,7 +2,7 @@ from werkzeug.security import check_password_hash
 from ..models.user_model import User
 from ..core.extensions import db
 from ..core.utils import create_jwt_token
-from flask import current_app
+from flask import current_app as app
 from ..core.errors import AuthErrorException
 
 
@@ -18,10 +18,11 @@ def login_process(email, password):
 
     # If user doesn't exist or password is wrong
     if user is None or not check_password(user.password, password):
+        app.logger.warning("Invalid email or password: %s", email)
         raise AuthErrorException("Invalid email or password")  # 🔥 Generic message
 
     # If everything is correct
-    access_token = create_jwt_token(email, current_app.config.get("JWT_SECRET_KEY"), 15)
+    access_token = create_jwt_token(email, app.config.get("JWT_SECRET_KEY"), 15)
     
     return access_token
 

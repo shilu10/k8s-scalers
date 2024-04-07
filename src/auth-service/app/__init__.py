@@ -6,8 +6,8 @@ from .routes.logout_route import logout_bp
 from .core.config import Config
 from .core.extensions import db, jwt
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
 from .core.middleware import jwt_middleware
+from .core.logger import setup_logger
 
 
 def init_app():
@@ -18,9 +18,10 @@ def init_app():
 
     CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "https://yourfrontend.com"]}})
 
+    setup_logger(app)
+
     # sqlalchemy initialization
     db.init_app(app)
-
     # jwt initialization
     jwt.init_app(app)
 

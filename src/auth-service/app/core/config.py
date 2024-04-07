@@ -13,3 +13,4 @@ db_uri = generate_db_uri("mysql",
 class Config:
     SQLALCHEMY_DATABASE_URI = db_uri
     JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+    LOG_DIR = os.environ["LOG_DIR"]
