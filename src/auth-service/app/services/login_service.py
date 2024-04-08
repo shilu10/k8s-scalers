@@ -46,7 +46,6 @@ def login_process(email, password):
         )
         
         db.session.add(token_entry)
-        app.logger.warning("db: %s", db)
         db.session.commit()
 
         return access_token, refresh_token

@@ -8,6 +8,6 @@ class LoginSchema(Schema):
     
     password = fields.String(
         required=True,
-        validate=validate.Length(min=8, max=128),
+        validate=validate.Length(min=6, max=128),
         error_messages={"required": "Password is required."}
     )

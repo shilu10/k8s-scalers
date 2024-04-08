@@ -11,7 +11,7 @@ login_bp = Blueprint("login_bp", __name__)
 login_schema = LoginSchema()
 
 
-@login_bp.route("/api/auth/v1/login", methods=["POST"])
+@login_bp.route("/login", methods=["POST"])
 def login():
     login_data = request.get_json()
     email = login_data.get("email")

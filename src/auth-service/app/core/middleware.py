@@ -4,7 +4,7 @@ from flask import request, current_app as app
 
 
 def jwt_middleware():
-    skip_paths = ['/api/auth/v1/login', '/api/auth/v1/signup', '/api/auth/v1/refresh', '/api/auth/v1/logout']  # Public endpoints
+    skip_paths = ['/api/v1/login', '/api/v1/signup', '/api/v1/refresh', '/api/v1/logout']  # Public endpoints
     if request.path in skip_paths:
         return  # Allow public routes without JWT
     

@@ -17,7 +17,7 @@ def init_app():
 
     app.before_request(jwt_middleware)
 
-    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "https://yourfrontend.com"]}})
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:8000"]}})
 
     setup_logger(app)
 
@@ -27,10 +27,10 @@ def init_app():
     with app.app_context():
         db.create_all()
 
-    app.register_blueprint(login_bp)
-    app.register_blueprint(health_bp)
-    app.register_blueprint(signup_bp)
-    app.register_blueprint(logout_bp)
-    app.register_blueprint(refresh_bp)
+    app.register_blueprint(login_bp, url_prefix="/api/v1")
+    app.register_blueprint(health_bp, url_prefix="/api/v1")
+    app.register_blueprint(signup_bp, url_prefix="/api/v1")
+    app.register_blueprint(logout_bp, url_prefix="/api/v1")
+    app.register_blueprint(refresh_bp, url_prefix="/api/v1")
 
     return app 

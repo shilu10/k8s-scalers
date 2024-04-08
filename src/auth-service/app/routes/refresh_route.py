@@ -7,7 +7,7 @@ from ..core.errors import DataErrorException, OperationalErrorException, Integri
 
 refresh_bp = Blueprint("refresh_bp", __name__)
 
-@refresh_bp.route("/api/auth/v1/refresh", methods=["POST"])
+@refresh_bp.route("/refresh", methods=["POST"])
 def refresh():
     try:
         request_data = request.get_json()

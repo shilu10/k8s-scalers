@@ -8,7 +8,7 @@ from flask import current_app
 health_bp = Blueprint("health_bp", __name__)
 
 
-@health_bp.route("/api/auth/v1/healthz")
+@health_bp.route("/healthz")
 def health():
 
     user = g.current_user

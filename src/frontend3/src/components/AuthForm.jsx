@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import FormField from './FormField';
 import { toast } from 'react-toastify';
 
-export default function AuthForm({ isLogin }) {
+export default function AuthForm({ isLogin, onToggleLogin }) {
   const [loading, setLoading] = useState(false);
 
   const validationSchema = Yup.object({
@@ -30,39 +30,41 @@ export default function AuthForm({ isLogin }) {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        let response;
-        if (isLogin) {
-          // Login API call
-          response = await fetch('http://localhost:8001/api/auth/v1/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: values.email,
-              password: values.password,
-            }),
-          });
-        } else {
-          // Sign Up API call
-          response = await fetch('http://localhost:8001/api/auth/v1/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: values.email,
-              password: values.password,
-            }),
-          });
-        }
+        const url = isLogin
+          ? 'http://localhost:8000/api/v1/login'
+          : 'http://localhost:8000/api/v1/register';
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: values.email,
+            password: values.password,
+          }),
+        });
 
         const data = await response.json();
         console.log(data)
-
-        // Show toast message on success
         if (data.success) {
-          toast.success(isLogin ? 'Login Successful!' : 'Signup Successful!');
-        } else {
-          toast.error(data.message || 'Something went wrong');
-        }
+          // ✅ Store tokens if available
+          if (data.data.access_token) {
+            const accessToken = data.data.access_token;
+            localStorage.setItem('accessToken', accessToken);
+          }
+          if (data.data.refresh_token) {
+            const refreshToken = data.data.refresh_token;
+            localStorage.setItem('refreshToken', refreshToken);
+          }
 
+          toast.success(isLogin ? 'Login Successful!' : 'Signup Successful!');
+
+          if (!isLogin && data.success && onToggleLogin) {
+            onToggleLogin(); // ✅ Only call after successful signup
+          }
+          
+        } else {
+          toast.error(data.error || 'Something went wrong');
+        }
       } catch (error) {
         toast.error('An error occurred. Please try again.');
         console.error('Error:', error);
@@ -74,18 +76,8 @@ export default function AuthForm({ isLogin }) {
 
   return (
     <form onSubmit={formik.handleSubmit} noValidate>
-      <FormField
-        label="Email"
-        name="email"
-        type="email"
-        formik={formik}
-      />
-      <FormField
-        label="Password"
-        name="password"
-        type="password"
-        formik={formik}
-      />
+      <FormField label="Email" name="email" type="email" formik={formik} />
+      <FormField label="Password" name="password" type="password" formik={formik} />
       {!isLogin && (
         <FormField
           label="Confirm Password"

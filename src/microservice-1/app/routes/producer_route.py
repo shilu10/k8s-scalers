@@ -21,7 +21,7 @@ def post_message():
     # 1. check the schema
     try:
         video_metadata = request.form
-        data = metadata_schema.load(video_metadata)
+        schema_validation = metadata_schema.load(video_metadata)
 
     except ValidationError as err:
         return jsonify(err.messages), 400

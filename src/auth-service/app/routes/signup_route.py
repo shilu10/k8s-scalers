@@ -10,7 +10,7 @@ signup_bp = Blueprint("signup_bp", __name__)
 signup_schema = SignUpSchema()
 
 
-@signup_bp.route("/api/auth/v1/signup", methods=["POST"])
+@signup_bp.route("/signup", methods=["POST"])
 def signup():
     req_data = request.get_json()
     app.logger.info("Signup attempt with email: %s", req_data.get("email"))

@@ -35,7 +35,12 @@ export default function AuthFormContainer() {
         </Typography>
 
         {/* 🔥 Add key here */}
-        <AuthForm key={isLogin ? 'login' : 'signup'} isLogin={isLogin} />
+        <AuthForm
+          key={isLogin ? 'login' : 'signup'}
+          isLogin={isLogin}
+          onToggleLogin={() => setIsLogin(true)} // switches to login on signup success
+        />
+
 
         <Button onClick={toggleMode} fullWidth sx={{ mt: 2 }}>
           {isLogin

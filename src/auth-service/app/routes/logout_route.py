@@ -7,7 +7,7 @@ from ..services.logout_service import logout_process
 
 logout_bp = Blueprint("logout_bp", __name__)
 
-@logout_bp.route("/api/auth/v1/logout", methods=["POST"])
+@logout_bp.route("/logout", methods=["POST"])
 def logout():
     try:
         request_data = request.get_json()
