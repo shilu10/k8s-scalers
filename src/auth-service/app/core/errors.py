@@ -12,3 +12,10 @@ class DataErrorException(Exception):
 
 class OperationalErrorException(Exception):
     pass
+
+
+class TokenErrorException(Exception):
+    pass
+
+class SQLAlchemyErrorException(Exception):
+    pass

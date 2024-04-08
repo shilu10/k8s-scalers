@@ -3,6 +3,7 @@ from .routes.health_route import health_bp
 from .routes.login_route import login_bp
 from .routes.signup_route import signup_bp
 from .routes.logout_route import logout_bp
+from .routes.refresh_route import  refresh_bp
 from .core.config import Config
 from .core.extensions import db, jwt
 from flask_cors import CORS
@@ -20,9 +21,7 @@ def init_app():
 
     setup_logger(app)
 
-    # sqlalchemy initialization
     db.init_app(app)
-    # jwt initialization
     jwt.init_app(app)
 
     with app.app_context():
@@ -32,5 +31,6 @@ def init_app():
     app.register_blueprint(health_bp)
     app.register_blueprint(signup_bp)
     app.register_blueprint(logout_bp)
+    app.register_blueprint(refresh_bp)
 
     return app 

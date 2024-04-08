@@ -18,6 +18,7 @@ def signup():
     # Validate schema
     try:
         schema_res = signup_schema.load(req_data)
+
     except Exception as err:
         app.logger.warning("Signup schema validation failed: %s", str(err))
         return error_response(str(err), 400)
@@ -29,12 +30,12 @@ def signup():
     try:
         signup_process_response = signup_process(email, password)
         app.logger.info("Signup successful for email: %s", email)
-        return jsonify(signup_process_response), 200
+        return success_response(signup_process_response.get("message"), 200)
     
     except IntegrityErrorException as e:
         app.logger.warning("Signup attempt failed due to IntegrityError with email: %s", email)
-        
         return error_response(str(e), 400)
+    
     except DataErrorException as e:
         app.logger.warning("Signup attempt failed due to DataError with email: %s", email)
         return error_response(str(e), 400)
