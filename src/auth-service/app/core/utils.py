@@ -20,7 +20,6 @@ def generate_access_token(user_id, user_email, secret_key, expiration_minutes):
 
 def decode_jwt_token(token, secret_key):
     try:
-        app.logger.info("token: %s %s", token, secret_key)
         payload = jwt.decode(token, secret_key, algorithms=['HS256'])
         return payload
     

@@ -8,23 +8,25 @@ from ..schema.metadata_schema import MetadataSchema
 from ..services.s3_service import upload_to_bucket
 from ..services.redis_service import put_object
 from ..services.rabbitmq_service import publish_message
+from ..core.response_builder import error_response, success_response
+
 
 # blueprint
-producer_bp = Blueprint("producer_bp",  __name__)
+upload_bp = Blueprint("upload_bp",  __name__)
 
 # schema validation
 metadata_schema = MetadataSchema()
 
-@producer_bp.route("/api/v1/upload_video", methods=["POST"])
+@upload_bp.route("/api/v1/upload_video", methods=["POST"])
 def post_message():
 
     # 1. check the schema
     try:
-        video_metadata = request.form
+        video_metadata = request.get_json()
         schema_validation = metadata_schema.load(video_metadata)
 
     except ValidationError as err:
-        return jsonify(err.messages), 400
+        return error_response(err.messages, 400)
     
     # 2. Get the file
     video_file = request.files.get('video')

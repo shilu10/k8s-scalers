@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import AuthForm from './AuthForm';
 
 const MotionPaper = motion(Paper);
 
 export default function AuthFormContainer() {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate(); // Hook for navigation
 
   const toggleMode = () => setIsLogin((prev) => !prev);
+
+  // Callback function to be called on successful login
+  const onLoginSuccess = () => {
+    // Navigate to home page after successful login
+    navigate('/');
+  };
 
   return (
     <Box
@@ -34,13 +42,13 @@ export default function AuthFormContainer() {
           {isLogin ? 'Login' : 'Sign Up'}
         </Typography>
 
-        {/* 🔥 Add key here */}
+        {/* 🔥 Pass onLoginSuccess to AuthForm */}
         <AuthForm
           key={isLogin ? 'login' : 'signup'}
           isLogin={isLogin}
           onToggleLogin={() => setIsLogin(true)} // switches to login on signup success
+          onLoginSuccess={onLoginSuccess} // Pass the success handler to AuthForm
         />
-
 
         <Button onClick={toggleMode} fullWidth sx={{ mt: 2 }}>
           {isLogin

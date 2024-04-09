@@ -2,9 +2,9 @@ from flask import request, Blueprint, jsonify
 import requests 
 
 
-auth_route = Blueprint("auth_route", __name__)
+auth_bp = Blueprint("auth_route", __name__)
 
-@auth_route.route("/api/v1/login", methods=["POST"])
+@auth_bp.route("/api/v1/login", methods=["POST"])
 def login():
     payload = request.get_json()
 
@@ -16,7 +16,7 @@ def login():
     return auth_service_response.json()
 
 
-@auth_route.route("/api/v1/register", methods=["POST"])
+@auth_bp.route("/api/v1/register", methods=["POST"])
 def register():
     payload = request.get_json()
 
@@ -28,7 +28,7 @@ def register():
     return auth_service_response.json()
 
 
-@auth_route.route("/api/v1/refresh", methods=["POST"])
+@auth_bp.route("/api/v1/refresh", methods=["POST"])
 def refresh():
     payload = request.get_json()
     headers = request.headers
@@ -42,7 +42,7 @@ def refresh():
     return auth_service_response.json()
 
 
-@auth_route.route("/api/v1/logout", methods=["GET"])
+@auth_bp.route("/api/v1/logout", methods=["GET"])
 def healthz():
     payload = request.get_json()
 

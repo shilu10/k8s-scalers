@@ -4,9 +4,11 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormField from './FormField';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'; // useNavigate for redirection
 
 export default function AuthForm({ isLogin, onToggleLogin }) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // useNavigate hook for redirection
 
   const validationSchema = Yup.object({
     email: Yup.string().email('Invalid email').required('Email required'),
@@ -44,7 +46,8 @@ export default function AuthForm({ isLogin, onToggleLogin }) {
         });
 
         const data = await response.json();
-        console.log(data)
+        console.log(data);
+
         if (data.success) {
           // ✅ Store tokens if available
           if (data.data.access_token) {
@@ -58,10 +61,12 @@ export default function AuthForm({ isLogin, onToggleLogin }) {
 
           toast.success(isLogin ? 'Login Successful!' : 'Signup Successful!');
 
-          if (!isLogin && data.success && onToggleLogin) {
-            onToggleLogin(); // ✅ Only call after successful signup
+          // Redirect to home page directly after successful login/signup
+          if (isLogin) {
+            navigate('/'); // This ensures the user is redirected to the homepage
+          } else if (!isLogin && data.success && onToggleLogin) {
+            onToggleLogin(); // Switch the form mode to login after successful signup
           }
-          
         } else {
           toast.error(data.error || 'Something went wrong');
         }
