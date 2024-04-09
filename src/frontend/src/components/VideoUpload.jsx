@@ -28,11 +28,8 @@ export default function VideoUpload({ getPresignedUrlEndpoint, onUploadSuccess }
       });
 
       const presignedData = await presignedRes.json();
-      console.log(presignedData)
       const parts = presignedData.data.parts;
       const uploadId = presignedData.data.uploadId;
-      console.log(parts)
-
       const partETags = [];
 
       // Step 2: Upload each part
@@ -48,8 +45,6 @@ export default function VideoUpload({ getPresignedUrlEndpoint, onUploadSuccess }
           body: blob,
         });
   
-        console.log(uploadRes)
-
         const eTag = uploadRes.headers.get('ETag');
         partETags.push({
           PartNumber: part.partNumber,
@@ -71,9 +66,10 @@ export default function VideoUpload({ getPresignedUrlEndpoint, onUploadSuccess }
         }),
       });
 
+
       const result = await completeRes.json();
       if (result.success) {
-        onUploadSuccess(result.fileUrl);
+        onUploadSuccess(result.data.fileUrl);
       } else {
         throw new Error('Completion failed');
       }

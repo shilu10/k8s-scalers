@@ -16,6 +16,7 @@ def initiate_multipart_upload(s3_client, bucket_name, object_path):
     app.logger.debug("UploadId received: %s", response['UploadId'])
     return response['UploadId']
 
+
 def generate_presigned_urls(s3_client, bucket_name, object_path, upload_id, part_count):
     """Generate pre-signed URLs for each part of the file"""
     urls = []
@@ -34,15 +35,6 @@ def generate_presigned_urls(s3_client, bucket_name, object_path, upload_id, part
         app.logger.debug("Generated URL for part %s", part_number)
     return urls
 
-def complete_multipart_upload(s3_client, bucket_name, object_path, upload_id, parts):
-    """Complete the multipart upload by combining all parts"""
-    app.logger.info("Completing multipart upload for: %s", object_path)
-    return s3_client.complete_multipart_upload(
-        Bucket=bucket_name,
-        Key=object_path,
-        UploadId=upload_id,
-        MultipartUpload={'Parts': parts}
-    )
 
 def generate(file_name, email, file_size):
     """Main function to generate multipart upload pre-signed URLs"""

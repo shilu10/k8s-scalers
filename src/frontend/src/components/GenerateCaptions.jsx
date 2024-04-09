@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { AutoFixHigh } from '@mui/icons-material';
-import { motion } from 'framer-motion';
 
 const GenerateCaptions = ({ videoUrl, onGenerate, loading }) => {
   if (!videoUrl) return null;
@@ -13,9 +12,6 @@ const GenerateCaptions = ({ videoUrl, onGenerate, loading }) => {
       onClick={onGenerate}
       disabled={loading}
       startIcon={<AutoFixHigh />}
-      component={motion.button}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
       sx={{
         mt: 3,
         borderRadius: 2,

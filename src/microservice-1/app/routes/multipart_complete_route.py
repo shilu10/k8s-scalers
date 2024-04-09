@@ -1,12 +1,15 @@
 from flask import Blueprint, request, jsonify, current_app as app
 from botocore.exceptions import ClientError
 from ..core.s3 import get_s3_client
-from ..services.presigned_url_service import complete_multipart_upload
+from ..services.multipart_complete_service import complete_multipart_upload
 import os
+from ..core.response_builder import error_response, success_response
 
-multipart_upload_bp = Blueprint('multipart_upload_bp', __name__)
 
-@multipart_upload_bp.route('/complete-multipart', methods=['POST'])
+multipart_complete_bp = Blueprint('multipart_complete_bp', __name__)
+
+
+@multipart_complete_bp.route('/complete-multipart', methods=['POST'])
 def complete_multipart_upload_api():
     try:
         data = request.get_json()
@@ -48,25 +51,17 @@ def complete_multipart_upload_api():
 
         file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_path}"
 
-        return jsonify({
-            "success": True,
-            "message": "Upload completed successfully.",
+        data = {
+            "message": "Upload Completed successfully.",
             "fileUrl": file_url,
             "result": result
-        }), 200
+        }
+        return success_response(data, 200)
 
     except ClientError as e:
         app.logger.exception("AWS ClientError during multipart completion")
-        return jsonify({
-            "success": False,
-            "message": "AWS S3 error during upload completion.",
-            "error": str(e)
-        }), 502
+        return error_response("AWS S3 error during upload completion.", 502)
 
     except Exception as e:
         app.logger.exception("Unexpected error during multipart completion")
-        return jsonify({
-            "success": False,
-            "message": "Internal server error during upload completion.",
-            "error": str(e)
-        }), 500
+        return error_response("Internal server error during upload completion.", 502)

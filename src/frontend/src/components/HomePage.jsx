@@ -4,7 +4,6 @@ import {
   CircularProgress,
   Paper,
   Snackbar,
-  TextField,
   Typography,
   Select,
   MenuItem,
@@ -20,13 +19,12 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState(null);
   const [captions, setCaptions] = useState('');
-  const [email, setEmail] = useState('');
   const [language, setLanguage] = useState('en');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const navigate = useNavigate();
 
   const presignedUrlApi = 'http://localhost:8000/api/v1/generate-presigned-url';
-  const captionGenerationApi = 'https://api.yourdomain.com/generate-captions';
+  const captionGenerationApi = 'https://api.yourdomain.com/generate-captions'; // Replace with your correct API
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
@@ -122,17 +120,8 @@ const HomePage = () => {
                   <MenuItem value="de">German</MenuItem>
                   <MenuItem value="hi">Hindi</MenuItem>
                   <MenuItem value="zh">Chinese</MenuItem>
-                  {/* Add more languages as needed */}
                 </Select>
               </FormControl>
-
-              <TextField
-                label="Email (optional)"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-              />
 
               <GenerateCaptions
                 videoUrl={videoUrl}
@@ -143,6 +132,7 @@ const HomePage = () => {
           )}
 
           {loading && <CircularProgress />}
+
         </Paper>
 
         {captions && (
