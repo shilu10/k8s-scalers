@@ -1,12 +1,27 @@
 from flask import Flask
-from .routes.home_route import home_bp
-from .routes.stress_route import stress_bp
-
+from flask_socketio import SocketIO
+from .core.clients.rabbitmq import init_rabbitmq_connection, close_rabbitmq_connection
+from .routes.caption_route import caption_bp
+from .core.config import Config  # or your config class
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
 
-    app.register_blueprint(home_bp)
-    app.register_blueprint(stress_bp)
+    # Initialize WebSocket
+    #socketio = SocketIO(app)
 
-    return app 
+    # Initialize Redis and RabbitMQ
+    with app.app_context():
+        init_rabbitmq_connection()
+
+    # Register Blueprints
+    app.register_blueprint(caption_bp, url_prefix='/api/v1')
+
+    # Teardown RabbitMQ and Redis on app context end
+    @app.teardown_appcontext
+    def shutdown_services(exception=None):
+        close_rabbitmq_connection()
+
+    # Return the app and socketio
+    return app#, socketio

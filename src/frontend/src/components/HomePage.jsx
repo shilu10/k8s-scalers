@@ -107,21 +107,6 @@ const HomePage = () => {
 
           {videoUrl && (
             <>
-              <FormControl fullWidth sx={{ mt: 2 }}>
-                <InputLabel>Language</InputLabel>
-                <Select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  label="Language"
-                >
-                  <MenuItem value="en">English</MenuItem>
-                  <MenuItem value="es">Spanish</MenuItem>
-                  <MenuItem value="fr">French</MenuItem>
-                  <MenuItem value="de">German</MenuItem>
-                  <MenuItem value="hi">Hindi</MenuItem>
-                  <MenuItem value="zh">Chinese</MenuItem>
-                </Select>
-              </FormControl>
 
               <GenerateCaptions
                 videoUrl={videoUrl}
