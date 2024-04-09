@@ -10,3 +10,5 @@ mysqlclient
 flask-cors
 flask-jwt-extended
 PyJWT
+boto3
+botocore

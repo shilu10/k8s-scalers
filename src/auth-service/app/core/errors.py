@@ -19,3 +19,7 @@ class TokenErrorException(Exception):
 
 class SQLAlchemyErrorException(Exception):
     pass
+
+
+class ValidationErrrorException(Exception):
+    pass

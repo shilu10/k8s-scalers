@@ -1,7 +1,7 @@
 from flask import jsonify, request, Blueprint
 from ..schema.signup_schema import SignUpSchema
 from ..services.signup_service import signup_process
-from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException
+from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException, ValidationErrrorException
 from ..core.response_builder import success_response, error_response
 from flask import current_app as app
 
@@ -42,6 +42,10 @@ def signup():
     
     except OperationalErrorException as e:
         app.logger.error("Signup attempt failed due to OperationalError with email: %s", email)
+        return error_response(str(e), 500)
+    
+    except ValidationErrrorException as e:
+        app.logger.error("Signup attempt failed due to ValidationErrrorException with email: %s", email)
         return error_response(str(e), 500)
     
     except Exception as e:

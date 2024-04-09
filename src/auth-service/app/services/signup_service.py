@@ -2,8 +2,9 @@ from ..core.extensions import db
 from ..models.user_model import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError, DataError, OperationalError
-from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException
+from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException, ValidationErrrorException
 from flask import current_app as app
+from ..core.publish_event_sns import publish_event
 
 
 def get_password_hash(password):
@@ -21,6 +22,12 @@ def signup_process(email, password):
 
         db.session.add(user)
         db.session.commit()
+
+        topic_arn = app.config.get("TOPIC_ARN")
+        message = dict()
+        message["email"] = email
+        reponse = publish_event(topic_arn=topic_arn, message=message)
+        app.logger.info("Successfully pushed event to sns topic: %s", email)
 
         return {
             "success": True,
@@ -41,3 +48,7 @@ def signup_process(email, password):
         db.session.rollback()
         app.logger.warning("Database connection problem for email: %s", email)
         raise OperationalErrorException("Database connection problem. Please try again later.") from e
+
+    except ValidationErrrorException as e:
+        app.logger.warning("Validation failed in sns topic: %s", email)
+        raise ValidationErrrorException("Validation failed")

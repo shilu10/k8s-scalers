@@ -15,7 +15,7 @@ producer_bp = Blueprint("producer_bp",  __name__)
 # schema validation
 metadata_schema = MetadataSchema()
 
-@producer_bp.route("/api/v1/post_video", methods=["POST"])
+@producer_bp.route("/api/v1/upload_video", methods=["POST"])
 def post_message():
 
     # 1. check the schema

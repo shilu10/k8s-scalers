@@ -17,3 +17,4 @@ class Config:
     JWT_REFRESH_SECRET_KEY = os.environ["JWT_REFRESH_SECRET_KEY"]
     JWT_ACCESS_TOKEN_EXP_MIN = os.environ.get("JWT_ACCESS_TOKEN_EXP_MIN", 3)
     JWT_REFRESH_TOKEN_EXP_DAY = os.environ.get("JWT_REFRESH_TOKEN_EXP_DAY", 7)
+    TOPIC_ARN = os.environ.get("TOPIC_ARN")
