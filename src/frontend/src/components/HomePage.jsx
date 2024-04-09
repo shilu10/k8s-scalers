@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import VideoUpload from '../components/VideoUpload';
-import GenerateCaptions from '../components/GenerateCaptions';
+import VideoUpload from './VideoUpload';
+import GenerateCaptions from './GenerateCaptions';
 
 const HomePage = () => {
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ const HomePage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const navigate = useNavigate();
 
-  const presignedUrlApi = 'http://localhost:8000/api/v1/upload/generate-presigned-url';
+  const presignedUrlApi = 'http://localhost:8000/api/v1/generate-presigned-url';
   const captionGenerationApi = 'https://api.yourdomain.com/generate-captions';
 
   useEffect(() => {

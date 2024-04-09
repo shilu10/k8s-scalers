@@ -10,6 +10,6 @@ def init_app():
 
     app.register_blueprint(upload_bp)
     app.register_blueprint(auth_bp)
-    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:8000"]}})
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000"]}})
     app.before_request(jwt_middleware)
     return app 

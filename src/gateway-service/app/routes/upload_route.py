@@ -18,3 +18,19 @@ def generate_presigned_url():
         )
     
     return presigned_url_response.json()
+
+
+@upload_bp.route("/api/v1/complete-multipart", methods=["POST"])
+def complete_multipart_upload():
+    payload = request.get_json()
+    headers = {
+        "X-User-Email": g.current_user
+    }
+    
+    complete_multipart_upload_response = requests.post(
+            url="http://upload-service:8002/api/v1/complete-multipart",
+            json=payload,
+            headers=headers
+        )
+    
+    return complete_multipart_upload_response.json()

@@ -1,15 +1,16 @@
-from flask import request, jsonify, g
-import jwt
-from flask import request, current_app as app
-from .response_builder import error_response, success_response
+from flask import request, jsonify, g, current_app as app
+from .response_builder import error_response
 import requests
 
-
 def jwt_middleware():
-    skip_paths = ['/api/v1/login', '/api/v1/signup', '/api/v1/refresh', '/api/v1/logout', '/api/v1/validate']  # Public endpoints
+    # Skip CORS preflight OPTIONS requests
+    if request.method == 'OPTIONS':
+        return  # Let Flask-CORS handle it
+    
+    skip_paths = ['/api/v1/login', '/api/v1/signup', '/api/v1/refresh', '/api/v1/logout', '/api/v1/validate']
     if request.path in skip_paths:
         return  # Allow public routes without JWT
-    
+
     auth_header = request.headers.get('Authorization', None)
     if not auth_header:
         app.logger.warning("Missing Authorization header at path: %s", request.path)
@@ -25,19 +26,22 @@ def jwt_middleware():
     data = {
         "access_token": token
     }
-    
-    auth_response = requests.post(
-            url = "http://auth-service:8001/api/v1/validate-access-token",
+
+    try:
+        auth_response = requests.post(
+            url="http://auth-service:8001/api/v1/validate-access-token",
             json=data
-    )
-    auth_payload = auth_response.json()
-    if auth_payload["success"]:
-        current_user = auth_payload["data"]["sub"]
-        g.current_user = current_user  # Save user info in `g` (Flask's global context)
-        app.logger.info("Token is Valid of user: %s", current_user)
+        )
+        auth_payload = auth_response.json()
+
+    except Exception as e:
+        app.logger.error("Auth service error: %s", str(e))
+        return error_response("Auth service not reachable", 500)
+
+    if auth_payload.get("success"):
+        g.current_user = auth_payload["data"]["email"]
+        app.logger.info("Token is valid for user: %s", g.current_user)
 
     else:
-        app.logger.warning(auth_payload["error"])
-        return error_response(auth_payload["error"], 401)
-
-
+        app.logger.warning("Token validation failed: %s", auth_payload.get("error"))
+        return error_response(auth_payload.get("error", "Unauthorized"), 401)

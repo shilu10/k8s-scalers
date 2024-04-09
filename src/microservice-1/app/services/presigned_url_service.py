@@ -63,7 +63,11 @@ def generate(file_name, email, file_size):
         presigned_urls = generate_presigned_urls(s3_client, bucket_name, object_path, upload_id, part_count=part_counts)
 
         app.logger.info("PreSigned URLs Generated for: %s", email)
-        return presigned_urls
+        return {
+            "uploadId": upload_id,
+            "parts": presigned_urls,
+            "fileUrl": f"https://{bucket_name}.s3.amazonaws.com/{object_path}"
+        }
 
     except ClientError as e:
         app.logger.warning("AWS ClientError: %s", e)
