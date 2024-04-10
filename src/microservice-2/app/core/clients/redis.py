@@ -1,5 +1,4 @@
 import redis 
-from flask import current_app 
 
 _redis_client = None
 

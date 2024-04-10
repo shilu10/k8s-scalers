@@ -1,10 +1,11 @@
-import uuid
+import uuid, redis
+from flask import current_app
 from flask import request, jsonify, Blueprint
+from flask_socketio import emit, join_room, leave_room
 from flask import current_app as app
 from ..schema.caption_schema import CaptionSchema
 from ..core.response_builder import error_response, success_response
 from ..core.clients.rabbitmq import get_rabbitmq_client
-from ..core.clients.redis import get_redis_client
 
 
 caption_bp = Blueprint("caption_bp", __name__)
@@ -41,12 +42,7 @@ def request_new_generation():
 @caption_bp.route("/caption/status/<job_id>")
 def get_caption_status(job_id):
     try:
-        redis_client = get_redis_client(
-            app.config["REDIS_HOST"],
-            app.config["REDIS_PORT"],
-            app.config["REDIS_DB"]
-        )
-        status = redis_client.get(str(job_id))
+        status = app.redis_client.get(str(job_id))
         if status is not None:
             status = status.decode("utf-8")
         return success_response(data={"status": status}, status_code=200)
@@ -55,10 +51,44 @@ def get_caption_status(job_id):
         return error_response(message={"err": str(err)}, status_code=500)
 
 
-
 @caption_bp.route("/caption/result/<job_id>")
 def get_caption_result(job_id):
     pass
 
+
+# WebSocket: Events
+from flask_socketio import SocketIO
+
+@caption_bp.record_once
+def setup_socketio(state):
+    socketio: SocketIO = state.app.extensions["socketio"]
+
+    @socketio.on("connect")
+    def on_connect():
+        emit("status_update", {"message": "Connected!"})
+        print("Client connected")
+
+    @socketio.on("disconnect")
+    def on_disconnect():
+        print("Client disconnected")
+
+    @socketio.on("subscribe_job")
+    def on_subscribe_job(data):
+        job_id = data.get("job_id")
+        if not job_id:
+            emit("status_update", {"message": "Job ID is required!"})
+            return
+        join_room(job_id)
+        print(f"Client joined room: {job_id}")
+        status = app.redis_client.get(job_id)
+        if status:
+            emit("status_update", {"job_id": job_id, "status": status.decode("utf-8")}, room=job_id)
+
+    @socketio.on("unsubscribe_job")
+    def on_unsubscribe_job(data):
+        job_id = data.get("job_id")
+        if job_id:
+            leave_room(job_id)
+            print(f"Client left room: {job_id}")
 
 

@@ -7,6 +7,9 @@ import asyncio
 from deepgram_transcript import stream_from_s3
 from logger import setup_rotating_logger
 import threading
+from s3_client import get_s3_client
+from utils import create_presigned_url_from_s3_url
+
 
 # initialize config
 config = Config()
@@ -31,10 +34,11 @@ channel = connection.channel()
 channel.queue_declare(queue=config.RABBITMQ_QUEUE_NAME, durable=False)
 
 
-def run_job_in_thread(video_url, job_id):
+def run_job_in_thread(video_url, presigned_video_url, job_id):
     try:
         asyncio.run(stream_from_s3(
             video_url,
+            presigned_video_url,
             deepgram_api_key=config.DEEPGRAM_API_KEY,
             deepgram_ws_url=config.DEEPGRAM_WS_URL,
             job_id=job_id,
@@ -56,12 +60,15 @@ def process_job(ch, method, properties, body):
     job_id = job.get('job_id')
     video_url = job.get('video_url')
 
+    s3_client = get_s3_client(config.AWS_ACCESS_KEY, config.AWS_SECRET_ACCESS_KEY, config.AWS_REGION)
+    presigned_video_url = create_presigned_url_from_s3_url(video_url, s3_client)
+
     redis_client.set(job_id, "processing")
     redis_client.publish("my_channel", "processing")
     _logger.info("Started processing for %s", job_id)
 
     # Start async job in a separate thread
-    thread = threading.Thread(target=run_job_in_thread, args=(video_url, job_id))
+    thread = threading.Thread(target=run_job_in_thread, args=(video_url, presigned_video_url, job_id))
     thread.start()
 
     # Acknowledge the message *immediately* after dispatching

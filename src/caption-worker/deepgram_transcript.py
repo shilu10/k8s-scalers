@@ -6,8 +6,12 @@ import wave
 from pydub import AudioSegment
 from tempfile import NamedTemporaryFile
 from logger import setup_rotating_logger
+from mongo_client import get_mongo_client
+from config import Config
+
 
 _logger = setup_rotating_logger()
+_mongo_client = get_mongo_client(Config.MONGO_URI)
 
 async def download_audio_to_temp_file(s3_url: str) -> str:
     _logger.info("⬇️ Downloading audio from S3 pre-signed URL: %s", s3_url)
@@ -63,7 +67,7 @@ async def stream_audio(ws, file_path: str):
     _logger.info("📤 Finished streaming audio: %s", file_path)
 
 
-async def receive_transcript(ws, total_duration: float, job_id: str, redis_client):
+async def receive_transcript(ws, total_duration: float, job_id: str, redis_client, video_url):
     """Receive and log transcript with progress updates."""
     last_processed = 0.0
     last_percentage = 0
@@ -86,17 +90,34 @@ async def receive_transcript(ws, total_duration: float, job_id: str, redis_clien
                         if percentage > last_percentage:
                             last_percentage = percentage
                             redis_client.set(job_id, percentage)
-                            redis_client.publish("my_channel", percentage)
+                            pub_sub_message = {
+                                "job_id": job_id,
+                                "status": percentage
+                            }
+                            redis_client.publish("my_channel", json.dumps(pub_sub_message))
+
                             _logger.info(f"⏳ {percentage}% processed ({last_processed:.2f}s / {total_duration:.2f}s)")
             except (KeyError, IndexError):
                 continue
 
-    with open("transcript.txt", "w") as f:
-        f.write(" ".join(transcript))
-    _logger.info("✅ Transcript saved to transcript.txt")
+    #with open("transcript.txt", "w") as f:
+    #    f.write(" ".join(transcript))
+    
+    #_logger.info("✅ Transcript saved to transcript.txt")
+    database = _mongo_client.stress_app
+    collection = database.transcripts
+
+    insert_transcript = {
+        "job_id": job_id,
+        "video_url": video_url,
+        "transcript": transcript
+    }
+
+    insert_transcript_id = collection.insert_one(insert_transcript).inserted_id
+    _logger.info("Inserted Transcript into DB for jod_id and insert_transcript_id: %s %s", job_id, insert_transcript_id)
 
 
-async def stream_from_s3(s3_url: str, deepgram_api_key: str, deepgram_ws_url: str, job_id: str, redis_client):
+async def stream_from_s3(video_url: str, s3_url: str, deepgram_api_key: str, deepgram_ws_url: str, job_id: str, redis_client):
     """Main orchestration function: S3 download -> WAV convert -> stream to Deepgram."""
     # Step 1: Download and convert
     audio_path = await download_audio_to_temp_file(s3_url)
@@ -113,7 +134,7 @@ async def stream_from_s3(s3_url: str, deepgram_api_key: str, deepgram_ws_url: st
             _logger.info("✅ Connected to Deepgram WebSocket for job %s", job_id)
             await asyncio.gather(
                 stream_audio(ws, audio_path),
-                receive_transcript(ws, duration, job_id, redis_client)
+                receive_transcript(ws, duration, job_id, redis_client, video_url)
             )
 
     os.remove(audio_path)

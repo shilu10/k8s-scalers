@@ -2,3 +2,5 @@ pika
 redis
 aiohttp
 pydub
+boto3
+pymongo
