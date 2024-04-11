@@ -164,6 +164,13 @@ infra/*.tfstate
 infra/*.tfstate.backup
 infra/.terraform/
 
+
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/.terraformignore
+infra/*.tfvars
+
 # Sensitive or machine-generated files
 *.log
 crash.log
