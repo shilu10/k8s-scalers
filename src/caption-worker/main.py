@@ -1,6 +1,5 @@
 import pika
 from redis_client import get_redis_client
-import time
 from config import Config
 import json
 import asyncio
@@ -45,8 +44,9 @@ def run_job_in_thread(video_url, presigned_video_url, job_id):
             redis_client=redis_client
         ))
         
-        redis_client.set(job_id, "Completed Processing")
-        redis_client.publish("my_channel", "Completed Processing")
+        redis_client.set(job_id, "Processed")
+        redis_pub_sub_message = {"job_id": job_id, "status": "Processed"}
+        redis_client.publish("my_channel", json.dumps(redis_pub_sub_message))
         _logger.info("Completed processing for %s", job_id)
 
     except Exception as e:

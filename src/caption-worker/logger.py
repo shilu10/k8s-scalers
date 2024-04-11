@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
+
 def setup_rotating_logger(name="deepgram_stream", log_file="deepgram_stream.log", max_bytes=1_000_000, backup_count=5):
     """
     Create a rotating logger that rolls over when the file reaches `max_bytes`.

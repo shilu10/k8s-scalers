@@ -6,6 +6,7 @@ from flask import current_app as app
 from ..schema.caption_schema import CaptionSchema
 from ..core.response_builder import error_response, success_response
 from ..core.clients.rabbitmq import get_rabbitmq_client
+from pymongo.errors import PyMongoError
 
 
 caption_bp = Blueprint("caption_bp", __name__)
@@ -53,7 +54,37 @@ def get_caption_status(job_id):
 
 @caption_bp.route("/caption/result/<job_id>")
 def get_caption_result(job_id):
-    pass
+    try:
+        current_status = app.redis_client.get(job_id)
+        current_status = current_status.decode('utf-8')
+        app.logger.info("current_status, %s", current_status)
+        if str(current_status).lower() != "processed":
+            return error_response(message="Processing of video is not completed", status_code=400)
+        app.logger.info("job_id, %s", job_id)
+        mongo_client = app.mongo_client
+        database = mongo_client.get_database(app.config["MONGO_DB"])
+        collection = database.get_collection(app.config["MONGO_COLLECTION"])
+
+        transcript = collection.find_one({"job_id": str(job_id)})
+
+        if not transcript:
+            return error_response(message="Transcript not found", status_code=404)
+        
+        data = transcript.get("transcript")
+        
+        app.logger.info("transcript, %s", data)
+
+        return success_response(data={"transcript": data}, status_code=200)
+
+    except PyMongoError as e:
+        # MongoDB-related errors
+        app.logger.error(f"MongoDB Error: {e}")
+        return error_response(message="Database error", status_code=500)
+
+    except Exception as e:
+        # Generic fallback
+        app.logger.exception(f"Unhandled error: {e}")
+        return error_response(message="Internal server error", status_code=500)
 
 
 # WebSocket: Events

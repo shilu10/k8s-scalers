@@ -29,6 +29,7 @@ export default function VideoUpload({ getPresignedUrlEndpoint, onUploadSuccess }
 
       const presignedData = await presignedRes.json();
       const parts = presignedData.data.parts;
+      console.log('Presigned URL response:', presignedData);
       const uploadId = presignedData.data.uploadId;
       const partETags = [];
 

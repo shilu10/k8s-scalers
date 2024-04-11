@@ -1,37 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   CircularProgress,
   Paper,
   Snackbar,
   Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  LinearProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import io from 'socket.io-client';
 import VideoUpload from './VideoUpload';
 import GenerateCaptions from './GenerateCaptions';
+
+const socket = io('http://localhost:5000'); // Make sure this matches your backend host
 
 const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState(null);
   const [captions, setCaptions] = useState('');
-  const [language, setLanguage] = useState('en');
+  const [progress, setProgress] = useState(0);
+  const [jobId, setJobId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
 
   const presignedUrlApi = 'http://localhost:8000/api/v1/generate-presigned-url';
-  const captionGenerationApi = 'https://api.yourdomain.com/generate-captions'; // Replace with your correct API
+  const captionRequestApi = 'http://localhost:8000/api/v1/request';
+  const captionResultApi = 'http://localhost:8000/api/v1/caption/result';
+  const captionStatusApi = 'http://localhost:8000/api/v1/caption/status';
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-    }
-  }, [navigate]);
+    if (!accessToken) navigate('/login');
+  }, [navigate, accessToken]);
+
+  useEffect(() => {
+    if (!jobId) return;
+
+    socket.emit('subscribe_job', { job_id: jobId });
+
+    socket.on('status_update', async (data) => {
+      if (data.job_id !== jobId) return;
+      console.log('WebSocket update:', data);
+
+      const status = data.status;
+
+      // If numeric, treat as percentage
+      if (!isNaN(status)) {
+        setProgress(parseInt(status));
+      }
+
+      // When processing is complete
+      if (status === 'processed') {
+        try {
+          const resultRes = await fetch(`${captionResultApi}/${jobId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          const resultData = await resultRes.json();
+          if (resultData.success) {
+            setCaptions(resultData.data.transcript);
+            toast.success('Captions ready!');
+          } else {
+            toast.error('Failed to fetch final captions.');
+          }
+        } catch (err) {
+          toast.error('Error fetching final caption result.');
+        } finally {
+          setLoading(false);
+          setProgress(100);
+        }
+      }
+    });
+
+    return () => {
+      socket.emit('unsubscribe_job', { job_id: jobId });
+      socket.off('status_update');
+    };
+  }, [jobId]);
 
   const generateCaptions = async () => {
     if (!videoUrl) {
@@ -40,23 +85,28 @@ const HomePage = () => {
     }
 
     setLoading(true);
+    setProgress(0);
+    setCaptions('');
     try {
-      const response = await fetch(captionGenerationApi, {
+      const response = await fetch(captionRequestApi, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoUrl, language }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ video_url: videoUrl }),
       });
 
       const data = await response.json();
-      if (data.success) {
-        setCaptions(data.captions);
-        toast.success('Captions generated successfully!');
+      if (data.success && data.data.job_id) {
+        setJobId(data.data.job_id);
+        toast.info('Caption job started...');
       } else {
-        toast.error('Failed to generate captions');
+        toast.error('Failed to start caption generation.');
+        setLoading(false);
       }
     } catch (error) {
-      toast.error('Error generating captions.');
-    } finally {
+      toast.error('Error initiating caption generation.');
       setLoading(false);
     }
   };
@@ -97,7 +147,7 @@ const HomePage = () => {
           </Typography>
 
           <Typography variant="body1" color="text.secondary" align="center">
-            Upload a video to start generating captions in your preferred language.
+            Upload a video to start generating captions.
           </Typography>
 
           <VideoUpload
@@ -106,18 +156,21 @@ const HomePage = () => {
           />
 
           {videoUrl && (
-            <>
-
-              <GenerateCaptions
-                videoUrl={videoUrl}
-                onGenerate={generateCaptions}
-                loading={loading}
-              />
-            </>
+            <GenerateCaptions
+              videoUrl={videoUrl}
+              onGenerate={generateCaptions}
+              loading={loading}
+            />
           )}
 
-          {loading && <CircularProgress />}
-
+          {loading && (
+            <Box sx={{ width: '100%', mt: 2 }}>
+              <LinearProgress variant="determinate" value={progress} />
+              <Typography align="center" mt={1}>
+                {progress}% Processing
+              </Typography>
+            </Box>
+          )}
         </Paper>
 
         {captions && (

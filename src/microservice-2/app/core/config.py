@@ -7,3 +7,7 @@ class Config:
     RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbitmq")
     RABBITMQ_QUEUE_NAME = os.environ.get("RABBITMQ_QUEUE_NAME", "stress")
     REDIS_DB = int(os.environ.get("REDIS_DB", 0))
+    MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://shilash:shilash@cluster0.7mwxnua.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    MONGO_DB = os.environ.get("MONGO_DB", "stress_app")
+    MONGO_COLLECTION = os.environ.get("MONGO_COLLECTION", "transcripts")
+    LOG_DIR = os.environ.get("LOG_DIR", "logs")

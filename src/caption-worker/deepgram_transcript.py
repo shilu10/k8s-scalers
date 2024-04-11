@@ -7,46 +7,60 @@ from pydub import AudioSegment
 from tempfile import NamedTemporaryFile
 from logger import setup_rotating_logger
 from mongo_client import get_mongo_client
+from aiohttp import ClientTimeout
 from config import Config
+import requests
 
 
 _logger = setup_rotating_logger()
 _mongo_client = get_mongo_client(Config.MONGO_URI)
 
-async def download_audio_to_temp_file(s3_url: str) -> str:
+
+def download_audio_to_temp_file(s3_url: str) -> str:
+    """Synchronous method for downloading audio file from S3 and converting it to WAV."""
     _logger.info("⬇️ Downloading audio from S3 pre-signed URL: %s", s3_url)
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(s3_url) as resp:
-            if resp.status != 200:
-                _logger.warning("❌ Failed to download audio: %s", resp.status)
-                raise Exception(f"Failed to download audio: {resp.status}")
+    headers = {
+        "User-Agent": "Mozilla/5.0",  # Makes it look like a browser
+        "Accept-Encoding": "identity",  # Don't request compression
+    }
 
-            total_size = int(resp.headers.get("Content-Length", 0))
-            downloaded = 0
+    try:
+        # Use requests for synchronous download
+        response = requests.get(s3_url, headers=headers, stream=True, timeout=600)
 
-            with NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_input_file:
-                while True:
-                    chunk = await resp.content.read(1024 * 32)
-                    if not chunk:
-                        break
-                    tmp_input_file.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size:
-                        percent = (downloaded / total_size) * 100
-                        print(f"Download progress: {percent:.2f}%", end="\r")
-                input_path = tmp_input_file.name
+        if response.status_code != 200:
+            _logger.warning("❌ Failed to download audio: %s", response.status_code)
+            raise Exception(f"Failed to download audio: {response.status_code}")
+        
+        total_size = int(response.headers.get("Content-Length", 0))
+        downloaded = 0
 
-    print("\n✅ Download complete: ", input_path)
+        with NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_input_file:
+            for chunk in response.iter_content(chunk_size=1024 * 32):
+                if not chunk:
+                    break
+                tmp_input_file.write(chunk)
+                downloaded += len(chunk)
+                if total_size:
+                    percent = (downloaded / total_size) * 100
+                    print(f"Download progress: {percent:.2f}%", end="\r")
+            input_path = tmp_input_file.name
 
-    # Convert to WAV using pydub
-    _logger.info("🎧 Converting MP4 to WAV...")
-    audio = AudioSegment.from_file(input_path)
-    output_path = input_path.replace(".mp4", ".wav")
-    audio.export(output_path, format="wav")
+        print("\n✅ Download complete: ", input_path)
 
-    _logger.info("✅ Conversion complete: %s", output_path)
-    return output_path
+        # Convert to WAV using pydub
+        _logger.info("🎧 Converting MP4 to WAV...")
+        audio = AudioSegment.from_file(input_path)
+        output_path = input_path.replace(".mp4", ".wav")
+        audio.export(output_path, format="wav")
+
+        _logger.info("✅ Conversion complete: %s", output_path)
+        return output_path
+
+    except requests.exceptions.RequestException as e:
+        _logger.error("Error occurred during download: %s", e)
+        raise
 
 
 def get_audio_duration(file_path: str) -> float:
@@ -100,10 +114,15 @@ async def receive_transcript(ws, total_duration: float, job_id: str, redis_clien
             except (KeyError, IndexError):
                 continue
 
-    #with open("transcript.txt", "w") as f:
-    #    f.write(" ".join(transcript))
-    
-    #_logger.info("✅ Transcript saved to transcript.txt")
+    # Final update to mark 100% completion
+    redis_client.set(job_id, 100)
+    pub_sub_message = {
+        "job_id": job_id,
+        "status": 100
+    }
+    redis_client.publish("my_channel", json.dumps(pub_sub_message))
+
+    # Save transcript to MongoDB
     database = _mongo_client.stress_app
     collection = database.transcripts
 
@@ -114,19 +133,19 @@ async def receive_transcript(ws, total_duration: float, job_id: str, redis_clien
     }
 
     insert_transcript_id = collection.insert_one(insert_transcript).inserted_id
-    _logger.info("Inserted Transcript into DB for jod_id and insert_transcript_id: %s %s", job_id, insert_transcript_id)
+    _logger.info("Inserted Transcript into DB for job_id and insert_transcript_id: %s %s", job_id, insert_transcript_id)
 
 
 async def stream_from_s3(video_url: str, s3_url: str, deepgram_api_key: str, deepgram_ws_url: str, job_id: str, redis_client):
     """Main orchestration function: S3 download -> WAV convert -> stream to Deepgram."""
-    # Step 1: Download and convert
-    audio_path = await download_audio_to_temp_file(s3_url)
+    # Step 1: Download and convert (using synchronous function)
+    audio_path = download_audio_to_temp_file(s3_url)
 
     # Step 2: Get duration
     duration = get_audio_duration(audio_path)
     _logger.info("🎧 Audio duration: %.2f seconds", duration)
 
-    # Step 3: Connect and stream
+    # Step 3: Connect and stream asynchronously
     session_headers = {"Authorization": f"Token {deepgram_api_key}"}
 
     async with aiohttp.ClientSession(headers=session_headers) as session:
