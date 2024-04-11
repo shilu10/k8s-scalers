@@ -27,8 +27,8 @@ const HomePage = () => {
 
   const presignedUrlApi = 'http://localhost:8000/api/v1/generate-presigned-url';
   const captionRequestApi = 'http://localhost:8000/api/v1/request';
-  const captionResultApi = 'http://localhost:8000/api/v1/caption/result';
-  const captionStatusApi = 'http://localhost:8000/api/v1/caption/status';
+  const captionResultApi = 'http://localhost:8000/api/v1/result';
+  const captionStatusApi = 'http://localhost:8000/api/v1/status';
 
   useEffect(() => {
     if (!accessToken) navigate('/login');
@@ -51,10 +51,13 @@ const HomePage = () => {
       }
 
       // When processing is complete
-      if (status === 'processed') {
+      if (status === 'Processed') {
         try {
           const resultRes = await fetch(`${captionResultApi}/${jobId}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
           });
           const resultData = await resultRes.json();
           if (resultData.success) {

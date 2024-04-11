@@ -9,18 +9,9 @@ export const useAuth = () => {
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
-
     const isLoginPage = location.pathname === '/login';
 
-    if (!accessToken && !refreshToken) {
-      // User is not logged in, allow login page
-      if (!isLoginPage) {
-        navigate('/login');
-      }
-      setAuthReady(true);
-      return;
-    }
-
+    // Token expiry check
     const isAccessTokenExpired = () => {
       try {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
@@ -30,35 +21,43 @@ export const useAuth = () => {
       }
     };
 
-    const refreshTokenFn = async () => {
+    const proceedToApp = async () => {
+      if (!accessToken && !refreshToken) {
+        if (!isLoginPage) navigate('/login');
+        setAuthReady(true);
+        return;
+      }
+
+      if (accessToken && !isAccessTokenExpired()) {
+        setAuthReady(true);
+        return;
+      }
+
+      // Access token expired, try refresh
       try {
         const res = await fetch('http://localhost:8000/api/v1/refresh', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ refreshToken }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshToken }),
         });
 
         if (!res.ok) throw new Error('Refresh failed');
 
         const data = await res.json();
-        localStorage.setItem('accessToken', data.accessToken);
+        // Store new tokens
+        localStorage.setItem('accessToken', data.data.access_token);
+        localStorage.setItem('refreshToken', data.data.refresh_token);
         setAuthReady(true);
       } catch (err) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         navigate('/login');
-        setAuthReady(true); // Still allow rendering to prevent blank page
+        setAuthReady(true);
       }
     };
 
-    if (isAccessTokenExpired()) {
-      refreshTokenFn();
-    } else {
-      setAuthReady(true);
-    }
-  }, [navigate, location]);
+    proceedToApp();
+  }, [location.pathname]);
 
   return authReady;
 };

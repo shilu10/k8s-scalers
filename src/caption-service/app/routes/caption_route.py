@@ -58,7 +58,7 @@ def get_caption_result(job_id):
         current_status = app.redis_client.get(job_id)
         current_status = current_status.decode('utf-8')
         app.logger.info("current_status, %s", current_status)
-        if str(current_status).lower() != "processed":
+        if str(current_status).upper() != "Processed":
             return error_response(message="Processing of video is not completed", status_code=400)
         app.logger.info("job_id, %s", job_id)
         mongo_client = app.mongo_client
