@@ -104,7 +104,7 @@ variable "service_account_iam_policy_description" {
 
 variable "irsa_role_name" {
   type = string
-  default = "demo irsa role"
+  default = "demo-irsa-role"
 }
 
 variable "service_account_name" {
@@ -114,5 +114,61 @@ variable "service_account_name" {
 
 variable "sa_namespace" {
   type = string
-  default = "default"
+  default = "dev"
+}
+
+variable "private_subnets" {
+  type = list(string)
+    default = [ "10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24" ]
+
+    validation {
+      condition     = length(var.azs) == length(var.private_subnets)
+      error_message = "public_subnets must be the same length as azs"
+    }
+
+}
+
+
+variable "mysqldb_username" {
+  default = "admin"
+}
+
+variable "mysqldb_password" {
+  default = "your_secure_password"  # Avoid hardcoding in production; use secrets manager or env vars
+}
+
+variable "mysqldb_name" {
+  default = "stress"
+}
+
+variable "mysqldb_instance_class" {
+  default = "db.t3.micro"
+}
+
+variable "mysql_allocated_storage" {
+  default = 20
+}
+
+
+variable "mysql_db_subnet_group_name" {
+  type = string
+  default = "stress-app-mysql-sg"
+}
+
+variable "mysql_tags" {
+  type = map(string)
+  default = {
+    "env": "dev",
+    "app": "mysql"
+  }
+}
+
+variable "mysql_sg_name" {
+  type = string
+  default = "stress-sg"
+}
+
+variable "mysql_sg_description" {
+  type = string
+  default = "Allowing all inbound and outbound connection only for testing"
 }
