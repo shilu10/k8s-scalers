@@ -1,0 +1,98 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: caption-worker
+  namespace: dev 
+  labels:
+    env: dev 
+    app: caption-worker
+spec:
+  replicas: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 2
+  selector:
+    matchLabels:
+      env: dev 
+      app: caption-worker
+  template:
+    metadata:
+      name: caption-worker 
+      labels:
+        env: dev 
+        app: caption-worker
+      namespace: dev 
+    spec: 
+      containers:
+        - name: caption-worker 
+          image: caption-worker:latest
+          imagePullPolicy: Never 
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: caption-worker-secret
+                  key: REDIS_HOST
+
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: caption-worker-secret
+                  key: REDIS_PORT
+
+            - name: REDIS_DB
+              valueFrom:
+                secretKeyRef:
+                  name: caption-worker-secret
+                  key: REDIS_DB
+
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: caption-worker-secret
+                  key: RABBITMQ_HOST
+
+            - name: DEEPGRAM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: caption-worker-secret
+                  key: DEEPGRAM_API_KEY
+            
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_ACCESS_KEY
+                  name: caption-worker-secret
+
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_SECRET_ACCESS_KEY
+                  name: caption-worker-secret
+
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_URI
+                  name: caption-worker-secret
+
+            - name: RABBITMQ_QUEUE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-worker-configmap
+                  key: RABBITMQ_QUEUE_NAME
+
+            - name: DEEPGRAM_WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-worker-configmap
+                  key: DEEPGRAM_WS_URL
+
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-worker-configmap
+                  key: AWS_REGION
+              
+      restartPolicy: Always 

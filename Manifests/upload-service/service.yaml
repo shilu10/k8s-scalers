@@ -1,0 +1,17 @@
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: upload-service 
+  namespace: dev 
+  labels:
+    env: dev 
+    app: upload-backend
+spec:
+  type: ClusterIP 
+  selector:
+    env: dev 
+    app: upload-backend
+  ports:
+    - name: main 
+      port: 8002
+      targetPort: 8002

@@ -1,0 +1,84 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: caption-backend-deployment
+  labels:
+    env: dev 
+    app: caption-backend
+  namespace: dev 
+
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: caption-backend-pod
+      env: dev 
+
+  template:
+    metadata: 
+      name: caption-backend
+      labels:
+        env: dev
+        app: caption-backend-pod
+      namespace: dev 
+
+    spec:
+      containers: 
+        - name: caption-backend-main
+          image: caption-service:latest 
+          imagePullPolicy: Never
+
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: caption-backend-secret
+                  key: REDIS_HOST
+            
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: caption-backend-secret
+                  key: REDIS_PORT
+
+            - name: REDIS_DB 
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-backend-configmap
+                  key: REDIS_DB
+              
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: caption-backend-secret
+                  key: RABBITMQ_HOST
+            
+            - name: RABBITMQ_QUEUE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-backend-configmap
+                  key: RABBITMQ_QUEUE_NAME
+            
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: caption-backend-secret
+                  key: MONGO_URI
+             
+            - name: MONGO_DB 
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-backend-configmap
+                  key: MONGO_DB
+
+            - name: MONGO_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-backend-configmap
+                  key: MONGO_COLLECTION
+            
+            - name: LOG_DIR
+              valueFrom:
+                configMapKeyRef:
+                  name: caption-backend-configmap
+                  key: LOG_DIR

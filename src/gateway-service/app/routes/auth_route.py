@@ -1,5 +1,6 @@
 from flask import request, Blueprint, jsonify
 import requests 
+from flask import current_app as app
 
 
 auth_bp = Blueprint("auth_route", __name__)
@@ -8,8 +9,11 @@ auth_bp = Blueprint("auth_route", __name__)
 def login():
     payload = request.get_json()
 
+    auth_service_host = app.config.get("AUTH_SERVICE")
+    auth_service_port = app.config.get("AUTH_SERVICE_PORT")
+
     auth_service_response = requests.post(
-                                url="http://auth-service:8001/api/v1/login",
+                                url=f"http://{auth_service_host}:{auth_service_port}/api/v1/login",
                                 json=payload
                             )
     
@@ -20,8 +24,10 @@ def login():
 def register():
     payload = request.get_json()
 
+    auth_service_host = app.config.get("AUTH_SERVICE")
+    auth_service_port = app.config.get("AUTH_SERVICE_PORT")
     auth_service_response = requests.post(
-                                url="http://auth-service:8001/api/v1/signup",
+                                url=f"http://{auth_service_host}:{auth_service_port}/api/v1/signup",
                                 json=payload
                             )
     
@@ -33,8 +39,10 @@ def refresh():
     payload = request.get_json()
     headers = request.headers
 
+    auth_service_host = app.config.get("AUTH_SERVICE")
+    auth_service_port = app.config.get("AUTH_SERVICE_PORT")
     auth_service_response = requests.post(
-                                url="http://auth-service:8001/api/v1/refresh",
+                                url=f"http://{auth_service_host}:{auth_service_port}/api/v1/refresh",
                                 json=payload,
                                 headers=headers
                             )
@@ -46,8 +54,10 @@ def refresh():
 def healthz():
     payload = request.get_json()
 
+    auth_service_host = app.config.get("AUTH_SERVICE")
+    auth_service_port = app.config.get("AUTH_SERVICE_PORT")
     auth_service_response = requests.post(
-                                url="http://auth-service:8001/api/v1/logout",
+                                url=f"http://{auth_service_host}:{auth_service_port}/api/v1/logout",
                                 json=payload,
                             )
     

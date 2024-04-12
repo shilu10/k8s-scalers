@@ -1,0 +1,14 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata:
+  name: auth-service 
+  namespace: dev 
+  labels:
+    env: dev 
+    app: auth-backend-service 
+
+data:
+  JWT_ACCESS_TOKEN_EXP_MIN: "10"
+  JWT_REFRESH_TOKEN_EXP_DAY: "7"
+  TOPIC_ARN: arn:aws:sns:us-east-1:533267453751:stress-auth-service-topic
+  LOG_DIR: logs

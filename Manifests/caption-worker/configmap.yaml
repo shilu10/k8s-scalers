@@ -1,0 +1,13 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata:
+  name: caption-worker-configmap
+  namespace: dev 
+  labels:
+    env: dev 
+    app: caption-worker 
+
+data:
+  RABBITMQ_QUEUE_NAME: ""
+  DEEPGRAM_WS_URL: ""
+  AWS_REGION: "us-east-1"

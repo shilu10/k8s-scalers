@@ -18,3 +18,5 @@ class Config:
     JWT_ACCESS_TOKEN_EXP_MIN = int(os.environ.get("JWT_ACCESS_TOKEN_EXP_MIN", 10))
     JWT_REFRESH_TOKEN_EXP_DAY = int(os.environ.get("JWT_REFRESH_TOKEN_EXP_DAY", 7))
     TOPIC_ARN = os.environ.get("TOPIC_ARN")
+    AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
+    AWS_SECRET_KEY = os.environ["AWS_SECRET_KEY"]

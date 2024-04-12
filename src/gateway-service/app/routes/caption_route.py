@@ -1,5 +1,6 @@
 from flask import request, Blueprint, jsonify, g
 import requests
+from flask import current_app as app 
 
 
 caption_bp = Blueprint("caption_bp", __name__)
@@ -14,8 +15,11 @@ def request_caption():
         "X-User-Email": current_user
     }
 
+    caption_service_host = app.config.get("CAPTION_SERVICE")
+    caption_service_port = app.config.get("CAPTION_SERVICE_PORT")
+
     caption_service_response = requests.post(
-                                url="http://caption-service:5000/api/v1/request",
+                                url=f"http://{caption_service_host}:{caption_service_port}/api/v1/request",
                                 json=payload, 
                                 headers=headers
                             )
@@ -31,8 +35,10 @@ def caption_status(job_id):
         "X-User-Email": current_user
     }
 
+    caption_service_host = app.config.get("CAPTION_SERVICE")
+    caption_service_port = app.config.get("CAPTION_SERVICE_PORT")
     caption_service_response = requests.get(
-                                url=f"http://caption-service:5000/api/v1/caption/status/{job_id}",
+                                url=f"http://{caption_service_host}:{caption_service_port}/api/v1/caption/status/{job_id}",
                                 headers=headers
                             )
     
@@ -47,8 +53,10 @@ def caption_result(job_id):
         "X-User-Email": current_user
     }
 
+    caption_service_host = app.config.get("CAPTION_SERVICE")
+    caption_service_port = app.config.get("CAPTION_SERVICE_PORT")
     caption_service_response = requests.get(
-                                url=f"http://caption-service:5000/api/v1/caption/result/{job_id}",
+                                url=f"http://{caption_service_host}:{caption_service_port}/api/v1/caption/result/{job_id}",
                                 headers=headers
                             )
     

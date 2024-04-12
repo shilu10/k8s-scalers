@@ -1,0 +1,17 @@
+apiVersion: v1 
+kind: Service 
+metadata:
+  name: caption-backend-service 
+  labels:
+    app: caption-backend 
+    env: dev 
+  namespace: dev 
+spec:
+  type: ClusterIP
+  selector: 
+    env: dev 
+    app: caption-backend
+  ports:
+    - name: main 
+      port: 5000
+      targetPort: 5000
