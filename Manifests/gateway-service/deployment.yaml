@@ -28,41 +28,12 @@ spec:
         - name: gateway-backend-main 
           image: gateway-service:latest
           imagePullPolicy: Never 
-          env:
-            - name: AUTH_SERVICE
-              valueFrom:
-                configMapKeyRef:
-                  name: gateway-backend-configmap
-                  key: AUTH_SERVICE
+          
+          envFrom:
+            - configMapRef: 
+                name: gateway-backend-configmap
 
-            - name: UPLOAD_SERVICE
-              valueFrom:
-                configMapKeyRef:
-                  name: gateway-backend-configmap
-                  key: UPLOAD_SERVICE
-
-            - name: CAPTION_SERVICE
-              valueFrom:
-                configMapKeyRef:
-                  name: gateway-backend-configmap
-                  key: CAPTION_SERVICE
-
-            - name: AUTH_SERVICE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: gateway-backend-configmap
-                  key: AUTH_SERVICE_PORT
-
-            - name: UPLOAD_SERVICE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: gateway-backend-configmap
-                  key: UPLOAD_SERVICE_PORT
-            
-            - name: CAPTION_SERVICE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: CAPTION_SERVICE_PORT
-                  name: gateway-backend-configmap
-
+            - secretRef:
+                name: gateway-backend-secret
+              
       restartPolicy: Always 

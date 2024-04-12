@@ -25,81 +25,10 @@ spec:
         - name: auth-backend-service-pod 
           image: auth-service:latest 
           imagePullPolicy: Never
-          env:
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service
-                  key: DB_HOST 
+          
+          envFrom: 
+            - configMapRef:
+                name: auth-service
 
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service
-                  key: DB_PORT
-
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service
-                  key: DB_USER
-
-            - name: DB_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service
-                  key: DB_PASS
-
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service
-                  key: DB_NAME
-            
-            - name: JWT_ACCESS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service 
-                  key: JWT_ACCESS_SECRET_KEY
-
-            - name: JWT_REFRESH_SECRET_KEY
-              valueFrom:  
-                secretKeyRef:
-                  name: auth-service 
-                  key: JWT_REFRESH_SECRET_KEY
-
-            - name: JWT_ACCESS_TOKEN_EXP_MIN
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-service 
-                  key: JWT_ACCESS_TOKEN_EXP_MIN
-
-            - name: JWT_REFRESH_TOKEN_EXP_DAY
-              valueFrom:  
-                configMapKeyRef:
-                  name: auth-service
-                  key: JWT_REFRESH_TOKEN_EXP_DAY
-
-            - name: AWS_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service 
-                  key: AWS_ACCESS_KEY
-
-            - name: AWS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service
-                  key: AWS_SECRET_KEY
-
-            - name: TOPIC_ARN
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-service 
-                  key: TOPIC_ARN
-
-            - name: LOG_DIR
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-service
-                  key: LOG_DIR
+            - secretRef:
+                name: auth-service

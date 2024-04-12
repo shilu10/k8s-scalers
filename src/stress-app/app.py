@@ -1,7 +1,6 @@
 from kubernetes import client, config
 import requests
-import os 
-import logging
+from config import Config
 
 
 def get_pods_ip_list():
@@ -10,8 +9,8 @@ def get_pods_ip_list():
         config.load_incluster_config()
 
         v1 = client.CoreV1Api()
-        pod_list = v1.list_namespaced_pod(namespace=os.environ["namespace"],
-                                    label_selector=os.environ["label_selector"]
+        pod_list = v1.list_namespaced_pod(Config.ENDPOINT,
+                                    label_selector=Config.LABEL_SELECTOR
                                     )
 
         ip_list = [pod.status.pod_ip for pod in pod_list.items if pod.status.phase == "Running"]
@@ -36,8 +35,8 @@ def cpu_stress(ip_list, load, duration, workers):
     try:
         results = {}
         for ip_addr in ip_list:
-            endpoint = os.environ["endpoint"]
-            port = os.environ["port"]
+            endpoint = Config.ENDPOINT
+            port = Config.PORT
             url = f"http://{ip_addr}:{port}/{endpoint}/stress_cpu"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -71,8 +70,8 @@ def mem_stress(ip_list, duration, mem_bytes):
     try:
         results = {}
         for ip_addr in ip_list:
-            endpoint = os.environ["endpoint"]
-            port = os.environ["port"]
+            endpoint = Config.ENDPOINT
+            port = Config.PORT
             url = f"http://{ip_addr}:{port}/{endpoint}/stress_cpu"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -105,8 +104,8 @@ def mem_and_cpu_stress(ip_list, duration, mem_bytes, load, workers):
     try:
         results = {}
         for ip_addr in ip_list:
-            endpoint = os.environ["endpoint"]
-            port = os.environ["port"]
+            endpoint = Config.ENDPOINT
+            port = Config.PORT
             url = f"http://{ip_addr}:{port}/{endpoint}/stress_cpu"
             headers = {"Content-Type": "application/json"}
             payload = {
@@ -140,10 +139,10 @@ def mem_and_cpu_stress(ip_list, duration, mem_bytes, load, workers):
 def main():
     ip_list = get_pods_ip_list()
 
-    if os.environ["stress_type"] == "cpu":
-        load = os.environ["load"]
-        duration = os.environ["duration"]
-        workers = os.environ["workers"]
+    if Config.STRESS_TYPE == "cpu":
+        load = Config.LOAD
+        duration = Config.DURATION
+        workers = Config.WORKERS
 
         return cpu_stress(ip_list=ip_list, 
                           load=load, 
@@ -151,20 +150,20 @@ def main():
                           workers=workers
                         )
     
-    if os.environ["stress_type"] == "mem":
-        duration = os.environ["duration"]
-        mem_bytes = os.environ["mem_bytes"]
+    if Config.STRESS_TYPE == "mem":
+        duration = Config.DURATION
+        mem_bytes = Config.MEM_BYTES
 
         return mem_stress(ip_list=ip_list, 
                           duration=duration, 
                           mem_bytes=mem_bytes
                         )
     
-    if os.environ["stress_type"] == "cpu_and_mem":
-        duration = os.environ["duration"]
-        mem_bytes = os.environ["mem_bytes"]
-        load = os.environ["load"]
-        workers = os.environ["workers"]
+    if Config.STRESS_TYPE == "cpu_and_mem":
+        duration = Config.DURATION
+        mem_bytes = Config.MEM_BYTES
+        load = Config.LOAD
+        workers = Config.WORKERS
 
         return mem_and_cpu_stress(ip_list=ip_list, 
                                   duration=duration, 

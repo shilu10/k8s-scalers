@@ -28,71 +28,12 @@ spec:
         - name: caption-worker 
           image: caption-worker:latest
           imagePullPolicy: Never 
-          env:
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: caption-worker-secret
-                  key: REDIS_HOST
+          
+          envFrom:
+            - configMapRef:
+                name: caption-worker-configmap
 
-            - name: REDIS_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: caption-worker-secret
-                  key: REDIS_PORT
-
-            - name: REDIS_DB
-              valueFrom:
-                secretKeyRef:
-                  name: caption-worker-secret
-                  key: REDIS_DB
-
-            - name: RABBITMQ_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: caption-worker-secret
-                  key: RABBITMQ_HOST
-
-            - name: DEEPGRAM_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: caption-worker-secret
-                  key: DEEPGRAM_API_KEY
-            
-            - name: AWS_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: AWS_ACCESS_KEY
-                  name: caption-worker-secret
-
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: AWS_SECRET_ACCESS_KEY
-                  name: caption-worker-secret
-
-            - name: MONGO_URI
-              valueFrom:
-                secretKeyRef:
-                  key: MONGO_URI
-                  name: caption-worker-secret
-
-            - name: RABBITMQ_QUEUE_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-worker-configmap
-                  key: RABBITMQ_QUEUE_NAME
-
-            - name: DEEPGRAM_WS_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-worker-configmap
-                  key: DEEPGRAM_WS_URL
-
-            - name: AWS_REGION
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-worker-configmap
-                  key: AWS_REGION
+            - secretRef:
+                name: caption-worker-secret 
               
       restartPolicy: Always 

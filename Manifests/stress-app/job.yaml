@@ -1,0 +1,32 @@
+apiVersion: batch/v1 
+kind: Job
+metadata:
+  name: stress-app-job
+  labels:
+    env: dev 
+    app: stress 
+  namespace: dev 
+
+spec:
+  selector:
+    matchLabels:
+      env: dev 
+      app: stress 
+
+  template:
+    metadata: 
+      name: stress-pod 
+      labels:
+        env: dev 
+        app: stress 
+      namespace: dev 
+
+    spec:
+      containers: 
+        - name: stress-main 
+          image: stress-app:latest 
+          imagePullPolicy: Never 
+          
+          envFrom:
+            configMapRef:
+              name: stress-app-configmap

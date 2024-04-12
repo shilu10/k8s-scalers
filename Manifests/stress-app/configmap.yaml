@@ -1,0 +1,17 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata:
+  name: stress-app-configmap 
+  labels:
+    env: dev 
+    app: stress-app 
+data:
+  NAMESPACE: ""
+  LABEL_SELECTOR: ""
+  ENDPOINT: ""
+  PORT: ""
+  LOAD: ""
+  DURATION: ""
+  WORKERS: ""
+  STRESS_TYPE: ""
+  MEM_BYTES: ""

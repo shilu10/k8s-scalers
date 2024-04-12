@@ -28,57 +28,9 @@ spec:
           image: caption-service:latest 
           imagePullPolicy: Never
 
-          env:
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: caption-backend-secret
-                  key: REDIS_HOST
-            
-            - name: REDIS_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: caption-backend-secret
-                  key: REDIS_PORT
+          envFrom:
+            - configMapRef: 
+                name: caption-backend-configmap
 
-            - name: REDIS_DB 
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-backend-configmap
-                  key: REDIS_DB
-              
-            - name: RABBITMQ_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: caption-backend-secret
-                  key: RABBITMQ_HOST
-            
-            - name: RABBITMQ_QUEUE_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-backend-configmap
-                  key: RABBITMQ_QUEUE_NAME
-            
-            - name: MONGO_URI
-              valueFrom:
-                secretKeyRef:
-                  name: caption-backend-secret
-                  key: MONGO_URI
-             
-            - name: MONGO_DB 
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-backend-configmap
-                  key: MONGO_DB
-
-            - name: MONGO_COLLECTION
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-backend-configmap
-                  key: MONGO_COLLECTION
-            
-            - name: LOG_DIR
-              valueFrom:
-                configMapKeyRef:
-                  name: caption-backend-configmap
-                  key: LOG_DIR
+            - secretRef:
+                name: caption-backend-secret 
