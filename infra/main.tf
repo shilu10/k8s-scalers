@@ -1,5 +1,6 @@
 provider "aws" {
   region = "us-east-1"
+
 }
 
 provider "kubernetes" {
@@ -49,7 +50,7 @@ resource "aws_eks_cluster" "this" {
   version  = var.eks_version
 
   vpc_config {
-    subnet_ids = module.vpc.public_subnets
+    subnet_ids = module.vpc.private_subnets
   }
 
   depends_on = [aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy]
@@ -118,6 +119,12 @@ resource "aws_eks_node_group" "this" {
 
 ### IRSA Setup
 
+resource "kubernetes_namespace" "irsa" {
+  metadata {
+    name = var.sa_namespace
+  }
+}
+
 data "tls_certificate" "this" {
   url = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
@@ -128,8 +135,8 @@ resource "aws_iam_openid_connect_provider" "this" {
   url             = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
 
-resource "aws_iam_role" "this" {
-  name = "eks-irsa-role"
+resource "aws_iam_role" "caption_worker" {
+  name = var.caption_worker_iam_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -140,7 +147,7 @@ resource "aws_iam_role" "this" {
       Action = "sts:AssumeRoleWithWebIdentity",
       Condition = {
         StringEquals = {
-          "${aws_iam_openid_connect_provider.this.url}:sub" = "system:serviceaccount:${var.sa_namespace}:${var.service_account_name}",
+          "${aws_iam_openid_connect_provider.this.url}:sub" = "system:serviceaccount:${var.sa_namespace}:${var.caption_worker_sa_name}",
           "${aws_iam_openid_connect_provider.this.url}:aud" = "sts.amazonaws.com"
         }
       }
@@ -148,35 +155,84 @@ resource "aws_iam_role" "this" {
   })
 }
 
-resource "aws_iam_role_policy" "this" {
-  name   = "eks-irsa-policy"
-  role   = aws_iam_role.this.id
+
+locals {
+  caption_worker_iam_actions = ["s3:PutObject",
+                      "s3:GetObject",
+                      "s3:ListBucketMultipartUploads",
+                      "s3:AbortMultipartUpload",
+                      "s3:ListMultipartUploadParts"
+                    ]
+}
+
+resource "aws_iam_role_policy" "caption_worker" {
+  name   = var.caption_worker_iam_policy_name
+  role   = aws_iam_role.caption_worker.id
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Effect = "Allow",
-      Action = ["s3:ListBucket", "s3:GetObject"],
-      Resource = "*"
+      Action = local.caption_worker_iam_actions
+      Resource = var.stress_app_bucket_arn
     }]
   })
 }
 
-resource "kubernetes_namespace" "irsa_ns" {
+resource "kubernetes_service_account" "caption_worker" {
   metadata {
-    name = var.sa_namespace
-  }
-}
-
-resource "kubernetes_service_account" "app" {
-  metadata {
-    name      = var.service_account_name
+    name      = var.caption_worker_sa_name
     namespace = var.sa_namespace
     annotations = {
-      "eks.amazonaws.com/role-arn" = aws_iam_role.this.arn
+      "eks.amazonaws.com/role-arn" = aws_iam_role.caption_worker.arn
     }
   }
 
-  depends_on = [kubernetes_namespace.irsa_ns]
+  depends_on = [kubernetes_namespace.irsa]
+}
+
+resource "aws_iam_role" "upload_service" {
+  name = var.upload_service_iam_role_name
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.this.arn
+      },
+      Action = "sts:AssumeRoleWithWebIdentity",
+      Condition = {
+        StringEquals = {
+          "${aws_iam_openid_connect_provider.this.url}:sub" = "system:serviceaccount:${var.sa_namespace}:${var.upload_service_sa_name}",
+          "${aws_iam_openid_connect_provider.this.url}:aud" = "sts.amazonaws.com"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "upload_service" {
+  name   = var.upload_service_iam_policy_name
+  role   = aws_iam_role.upload_service.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = var.upload_service_iam_action
+      Resource = var.stress_app_bucket_arn
+    }]
+  })
+}
+
+resource "kubernetes_service_account" "upload_service" {
+  metadata {
+    name      = var.upload_service_sa_name
+    namespace = var.sa_namespace
+    annotations = {
+      "eks.amazonaws.com/role-arn" = aws_iam_role.upload_service.arn
+    }
+  }
+
+  depends_on = [kubernetes_namespace.irsa]
 }
 
 ### RDS Setup
@@ -208,7 +264,7 @@ resource "aws_security_group" "rds_sg" {
 }
 
 resource "aws_db_instance" "mysql" {
-  identifier              = "my-mysql-db"
+  identifier              = var.upload_service_db
   engine                  = "mysql"
   engine_version          = "8.0"
   instance_class          = var.mysqldb_instance_class
@@ -219,7 +275,7 @@ resource "aws_db_instance" "mysql" {
   db_subnet_group_name    = aws_db_subnet_group.default.name
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
   skip_final_snapshot     = true
-  publicly_accessible     = true
+  publicly_accessible     = false
   storage_encrypted       = true
   multi_az                = false
 
@@ -233,14 +289,24 @@ resource "aws_db_instance" "mysql" {
 data "aws_ami" "latest" {
   filter {
     name   = "tag:Name"
-    values = ["stress-app-Ubuntu-AMI"]
+    values = var.aws_ec2_tag_values
   }
 
   most_recent = true
   owners      = ["self"]
 }
 
-resource "aws_instance" "web" {
+resource "aws_instance" "redis_ec2" {
   ami           = data.aws_ami.latest.id
-  instance_type = "t2.micro"
+  instance_type = var.redis_ec2_instance_type
+  
+  
+  tags = var.redis_ec2_tags
 }
+
+
+
+### need to create 
+# 1. 2 lambda functions
+# 2. sns topic 
+# s3 bucket
