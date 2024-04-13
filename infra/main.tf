@@ -1,6 +1,5 @@
 provider "aws" {
   region = "us-east-1"
-
 }
 
 provider "kubernetes" {
@@ -227,4 +226,21 @@ resource "aws_db_instance" "mysql" {
   tags = {
     Name = "MySQL-RDS"
   }
+}
+
+## redis
+
+data "aws_ami" "latest" {
+  filter {
+    name   = "tag:Name"
+    values = ["stress-app-Ubuntu-AMI"]
+  }
+
+  most_recent = true
+  owners      = ["self"]
+}
+
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.latest.id
+  instance_type = "t2.micro"
 }
