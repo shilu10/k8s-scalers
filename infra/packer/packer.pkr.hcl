@@ -1,12 +1,15 @@
 packer {
   required_plugins {
     amazon = {
+      version = ">= 1.0.0"
       source  = "github.com/hashicorp/amazon"
-      version = "~> 1"
+    }
+    ansible = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/ansible"
     }
   }
 }
-
 
 variable "aws_region" {
   type    = string
@@ -39,6 +42,6 @@ build {
   sources = ["source.amazon-ebs.ubuntu"]
 
   provisioner "shell" {
-    script = "shell.sh"
+    script = "scripts/shell.sh"
   }
 }

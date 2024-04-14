@@ -1,0 +1,33 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: gateway-deployment
+  namespace: dev 
+  labels:
+    app.kubernetes.io/instance: gateway-service-instance
+    app.kubernetes.io/part-of: stress-app
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gateway-service
+
+    spec: 
+      containers:
+        - name: gateway
+          image: gateway-service:latest
+          imagePullPolicy: Never 
+          
+          envFrom:
+            - configMapRef: 
+                name: gateway-config
+
+            - secretRef:
+                name: gateway-secret
+              
+      restartPolicy: Always 

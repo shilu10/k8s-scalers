@@ -60,7 +60,7 @@ def process_job(ch, method, properties, body):
     job_id = job.get('job_id')
     video_url = job.get('video_url')
 
-    s3_client = get_s3_client(config.AWS_ACCESS_KEY, config.AWS_SECRET_ACCESS_KEY, config.AWS_REGION)
+    s3_client = get_s3_client(config.AWS_REGION)
     presigned_video_url = create_presigned_url_from_s3_url(video_url, s3_client)
 
     redis_client.set(job_id, "processing")

@@ -1,18 +1,20 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
-# Optional: install dependencies for packages that require building
-RUN apk add --no-cache gcc musl-dev libffi-dev
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libffi-dev \
+    stress-ng \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy only requirements first
+# Copy and install Python dependencies
 COPY requirements.txt .
-
-# Install dependencies (cached if requirements.txt hasn't changed)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Now copy the rest of the code
+# Copy app source code
 COPY . .
 
 # Run the app

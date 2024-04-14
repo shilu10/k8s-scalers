@@ -1,7 +1,8 @@
 FROM python:3.11-alpine
 
 # Optional: install dependencies for packages that require building
-RUN apk add --no-cache gcc musl-dev libffi-dev
+RUN apk add --no-cache gcc musl-dev libffi-dev stress-ng
+   
 
 # Set working directory
 WORKDIR /app

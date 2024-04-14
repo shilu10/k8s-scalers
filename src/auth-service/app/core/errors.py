@@ -21,5 +21,16 @@ class SQLAlchemyErrorException(Exception):
     pass
 
 
-class ValidationErrrorException(Exception):
+class ValidationErrorException(Exception):
     pass
+
+
+class InvalidTokenError(Exception):
+    pass
+
+
+class ExpiredTokenError(Exception):
+    pass
+
+class TokenError(Exception):
+    pass 

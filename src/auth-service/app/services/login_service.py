@@ -3,20 +3,47 @@ from ..models.user_model import User
 from ..core.extensions import db
 from ..core.utils import generate_access_token, generate_refresh_token, hash_token
 from flask import current_app as app
-from ..core.errors import  IntegrityErrorException, DataErrorException, OperationalErrorException
+from ..core.errors import IntegrityErrorException, DataErrorException, OperationalErrorException
 from sqlalchemy.exc import IntegrityError, DataError, OperationalError
 from ..core.errors import AuthErrorException
-from ..core.extensions import db
 from ..models.token_block_list_model import RefreshToken
 
 
 def check_password(user_password, current_password):
-    verification_res = check_password_hash(user_password, current_password)
+    """
+    Verifies whether the provided password matches the hashed password.
 
+    Args:
+        user_password (str): The hashed password stored in the database.
+        current_password (str): The plaintext password provided by the user.
+
+    Returns:
+        bool: True if the password matches, False otherwise.
+    """
+    verification_res = check_password_hash(user_password, current_password)
     return verification_res
 
 
 def login_process(email, password):
+    """
+    Handles the login process for a user. Verifies the email and password,
+    generates access and refresh tokens, stores the refresh token in the database.
+
+    Args:
+        email (str): The email of the user trying to log in.
+        password (str): The plaintext password provided by the user.
+
+    Returns:
+        tuple: A tuple containing the generated access token and refresh token.
+            - access_token (str): The JWT access token.
+            - refresh_token (str): The JWT refresh token.
+
+    Raises:
+        AuthErrorException: If the email does not exist or the password is incorrect.
+        IntegrityErrorException: If there is an integrity issue with the database (e.g., unique constraint violation).
+        DataErrorException: If the data provided is invalid or too large for the database.
+        OperationalErrorException: If there is a database connection issue.
+    """
     try:
         # Query user by email
         user = db.session.query(User).filter_by(email=email).first()

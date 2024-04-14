@@ -9,3 +9,5 @@ class Config:
     AUTH_SERVICE_PORT = int(os.environ.get("AUTH_SERVICE_PORT", 8001))
     UPLOAD_SERVICE_PORT = int(os.environ.get("UPLOAD_SERVICE_PORT", 8002))
     CAPTION_SERVICE_PORT = int(os.environ.get("CAPTION_SERVICE_PORT", 8003))
+
+    LOG_DIR = os.environ.get("LOG_DIR", "logs/")

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  labels:
+    app.kubernetes.io/instance: auth-service-dev 
+    app.kubernetes.io/part-of: stress-app 
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: auth-service
+    spec:
+      containers:
+        - name: auth
+          image: auth-service:latest 
+          imagePullPolicy: Never
+          
+          envFrom: 
+            - configMapRef:
+                name: auth-config
+
+            - secretRef:
+                name: auth-secret

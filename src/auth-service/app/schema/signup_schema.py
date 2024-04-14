@@ -1,14 +1,34 @@
 from marshmallow import Schema, fields, validate, ValidationError
 
+
 class SignUpSchema(Schema):
+    """
+    Schema for validating user signup input.
+
+    Fields:
+    --------
+    email : str
+        Required. Must be a valid email address.
+
+    password : str
+        Required. Must be a string between 6 and 128 characters.
+        Optional: Can be extended with custom validators for strength (e.g., digits, uppercase).
+    """
+
     email = fields.Email(
         required=True,
-        error_messages={"required": "Email is required.", "invalid": "Invalid email format."}
+        error_messages={
+            "required": "Email is required.",
+            "invalid": "Invalid email format."
+        }
     )
+
     password = fields.String(
         required=True,
         validate=validate.Length(min=6, max=128),
-        error_messages={"required": "Password is required."}
+        error_messages={
+            "required": "Password is required."
+        }
     )
 
     # Optional: custom validator for even stronger password rules

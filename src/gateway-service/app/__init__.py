@@ -5,6 +5,7 @@ from .routes.caption_route import caption_bp
 from flask_cors import CORS
 from .core.middelware import jwt_middleware
 from .core.config import Config
+from .core.logger import setup_logger
 
 
 def init_app():
@@ -12,11 +13,13 @@ def init_app():
 
     app.config.from_object(Config)
 
-    app.register_blueprint(upload_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(caption_bp)
+    setup_logger(app)
+    
+    app.register_blueprint(upload_bp, url_prefix="/api/v1")
+    app.register_blueprint(auth_bp, url_prefix="/api/v1")
+    app.register_blueprint(caption_bp, url_prefix="/api/v1")
+
     CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000"]}})
     app.before_request(jwt_middleware)
 
-    
     return app 

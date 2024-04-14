@@ -6,7 +6,8 @@ RUN apk add --no-cache \
     musl-dev \
     libffi-dev \
     mariadb-connector-c-dev \
-    python3-dev
+    python3-dev \
+    stress-ng 
 
 # Set working directory
 WORKDIR /app

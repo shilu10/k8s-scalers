@@ -2,9 +2,7 @@ import os
 
 
 class Config:
-    video_directory = "uploads"
-    AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
-    AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
+
     REDIS_HOST = os.environ["REDIS_HOST"]
     REDIS_PORT = int(os.environ["REDIS_PORT"])
     OBJECT_STORE_BUCKET_NAME = os.environ["OBJECT_STORE_BUCKET_NAME"]

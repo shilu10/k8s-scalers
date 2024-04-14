@@ -1,0 +1,36 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: caption-worker-deployment
+  labels:
+    app.kubernetes.io/instance: caption-worker-dev 
+    app.kubernetes.io/part-of: stress-app
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  replicas: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: caption-worker
+  template:
+    metadata:
+      name: caption-worker 
+      labels:
+        app.kubernetes.io/name: caption-worker
+    spec: 
+      containers:
+        - name: caption-worker 
+          image: caption-worker:latest
+          imagePullPolicy: Never 
+          
+          envFrom:
+            - configMapRef:
+                name: caption-worker-config
+
+            - secretRef:
+                name: caption-worker-secret 
+              
+      restartPolicy: Always 

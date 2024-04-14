@@ -1,0 +1,11 @@
+apiVersion: v1 
+kind: ConfigMap
+metadata:
+  name: caption-config
+
+data:
+  REDIS_DB: "0" 
+  RABBITMQ_QUEUE_NAME: "stress"
+  MONGO_DB: "stress_app"
+  MONGO_COLLECTION: "transcripts"
+  LOG_DIR: "logs"

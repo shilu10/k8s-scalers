@@ -2,6 +2,8 @@ from flask import Flask
 from flask_socketio import SocketIO
 from .core.clients.rabbitmq import init_rabbitmq_connection, close_rabbitmq_connection
 from .routes.caption_route import caption_bp
+from .routes.healthz_route import healthz_bp
+from .routes.stress_route import stress_bp
 from .core.config import Config
 from .core.redis_listener import start_redis_listener
 from .core.clients.mongo import get_mongo_client
@@ -27,6 +29,8 @@ def create_app():
 
     # Register Blueprints
     app.register_blueprint(caption_bp, url_prefix='/api/v1')
+    app.register_blueprint(healthz_bp, url_prefix="/api/v1")
+    app.register_blueprint(stress_bp, url_prefix="/api/v1")
 
     # Teardown RabbitMQ only
     @app.teardown_appcontext

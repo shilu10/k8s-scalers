@@ -3,7 +3,7 @@ output "kubernetes_endpoint" {
 }
 
 output "kubernetes_id" {
-  value = aws_eks_cluster.this.id 
+  value = aws_eks_cluster.this.id
 }
 
 output "kubernetes_arn" {
@@ -11,7 +11,7 @@ output "kubernetes_arn" {
 }
 
 output "kubernetes_status" {
-  value = aws_eks_cluster.this.status 
+  value = aws_eks_cluster.this.status
 }
 
 output "kubernetes_ca" {
@@ -40,4 +40,18 @@ output "lambdas_arn" {
 
 output "sns_topic_arn" {
   value = aws_sns_topic.stress_app.arn
+}
+
+output "redis_instance_ip" {
+  value = aws_instance.redis.private_ip
+}
+
+output "mongodb_uri" {
+  value = mongodbatlas_cluster.cluster.mongo_uri
+  sensitive = true
+}
+
+output "rabbitmq_url" {
+  value = cloudamqp_instance.instance.url
+  sensitive = true
 }

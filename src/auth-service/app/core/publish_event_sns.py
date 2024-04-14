@@ -1,14 +1,27 @@
-import boto3, os, json
+import boto3
+import os
+import json
 import botocore
 from flask import current_app as app
 
-
 def publish_event(topic_arn, message):
+    """
+    Publishes a message to an SNS topic on AWS.
+
+    Args:
+        topic_arn (str): The Amazon Resource Name (ARN) of the SNS topic.
+        message (dict): The message to be sent. It will be wrapped in the SNS JSON structure.
+
+    Returns:
+        dict: The response from the SNS publish operation.
+
+    Raises:
+        botocore.exceptions.ClientError: If there is an error while communicating with AWS SNS.
+    """
     try:
+        # Create an SNS client using credentials from the app's configuration
         sns_client = boto3.client(
             "sns",
-            aws_access_key_id=app.config["AWS_ACCESS_KEY"],
-            aws_secret_access_key=app.config["AWS_SECRET_KEY"],
             region_name=app.config.get("AWS_REGION", "us-east-1")
         )
 
@@ -17,6 +30,7 @@ def publish_event(topic_arn, message):
             "default": json.dumps(message)
         }
 
+        # Publish the message to the SNS topic
         response = sns_client.publish(
             TopicArn=topic_arn,
             Message=json.dumps(payload),
@@ -26,8 +40,20 @@ def publish_event(topic_arn, message):
         return response
 
     except botocore.exceptions.ClientError as error:
-        if error.response['Error']['Code'] == 'LimitExceededException':
-            app.logger.warning('API call limit exceeded; backing off and retrying...')
+        # Check if it's an 'InvalidClientTokenId' error, which typically happens due to invalid credentials
+        if 'InvalidClientTokenId' in str(error):
+            app.logger.error(f"Invalid AWS credentials: {error}")
+
+        elif 'AccessDeniedException' in str(error):
+            app.logger.error(f"Access Denied: Check AWS permissions: {error}")
+            
         else:
             app.logger.error(f"Failed to publish SNS event: {error}")
-            raise error
+        
+        # Re-raise the error after logging it
+        raise error
+
+    except Exception as ex:
+        # Catch any other unexpected exceptions
+        app.logger.exception(f"Unexpected error occurred: {ex}")
+        raise ex
