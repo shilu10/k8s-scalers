@@ -19,8 +19,8 @@ spec:
     spec: 
       containers:
         - name: upload
-          image: upload-service:latest
-          imagePullPolicy: Never 
+          image: ""
+          imagePullPolicy: Always 
           
           envFrom:
             - configMapRef:
@@ -28,5 +28,7 @@ spec:
             
             - secretRef:
                 name: upload-secret 
+
+      serviceAccountName: upload-sa
                 
       restartPolicy: Always 

@@ -30,13 +30,14 @@ output "rds_endpoint" {
   value = aws_db_instance.mysql.endpoint
 }
 
-output "ecr_repos_url" {
-  value = { for repo_name, repo in aws_ecr_repository.repos : repo_name => repo.repository_url }
-}
+#output "ecr_repos_url" {
+ # value = { for repo_name, repo in aws_ecr_repository.repos : repo_name => repo.repository_url }
+#}
 
 output "lambdas_arn" {
   value = { for lambda_name, lambda in aws_lambda_function.stress_app : lambda_name => lambda.arn }
 }
+
 
 output "sns_topic_arn" {
   value = aws_sns_topic.stress_app.arn

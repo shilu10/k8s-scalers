@@ -8,7 +8,7 @@ locals {
 resource "aws_iam_role" "lambda_roles" {
   for_each = toset(local.target_repos)
 
-  name = "${each.key}_lambda_role"
+  name = "${each.key}-lambda_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -49,7 +49,7 @@ resource "aws_iam_role_policy" "object_creator" {
       Effect = "Allow",
       Action = local.object_creator_action
       Resource = [
-        module.s3_bucket.s3_bucket_arn,
+        #module.s3_bucket.s3_bucket_arn,
         "arn:aws:logs:*:*:*"
       ]
     }]
@@ -89,7 +89,7 @@ locals {
 
 resource "aws_lambda_function" "stress_app" {
   for_each = {
-    for repo_name, repo in aws_ecr_repository.repos :
+    for repo_name, repo in data.aws_ecr_repository.repos :
     repo_name => repo if contains(local.target_repos, repo_name)
   }
 
@@ -108,3 +108,4 @@ resource "aws_lambda_function" "stress_app" {
 
   tags = var.stress_app_tags
 }
+

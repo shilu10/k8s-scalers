@@ -33,8 +33,8 @@ export default function AuthForm({ isLogin, onToggleLogin }) {
       setLoading(true);
       try {
         const url = isLogin
-          ? 'http://localhost:8000/api/v1/login'
-          : 'http://localhost:8000/api/v1/register';
+          ? 'http://localhost:8000/api/v1/auth/login'
+          : 'http://localhost:8000/api/v1/auth/register';
 
         const response = await fetch(url, {
           method: 'POST',

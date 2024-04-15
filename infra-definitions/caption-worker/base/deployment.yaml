@@ -23,8 +23,9 @@ spec:
     spec: 
       containers:
         - name: caption-worker 
-          image: caption-worker:latest
-          imagePullPolicy: Never 
+          image: ""
+          imagePullPolicy: Always 
+          
           
           envFrom:
             - configMapRef:
@@ -32,5 +33,6 @@ spec:
 
             - secretRef:
                 name: caption-worker-secret 
-              
+
+      serviceAccountName: caption-sa  
       restartPolicy: Always 

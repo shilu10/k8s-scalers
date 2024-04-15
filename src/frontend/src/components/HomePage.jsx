@@ -25,10 +25,10 @@ const HomePage = () => {
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
 
-  const presignedUrlApi = 'http://localhost:8000/api/v1/generate-presigned-url';
-  const captionRequestApi = 'http://localhost:8000/api/v1/request';
-  const captionResultApi = 'http://localhost:8000/api/v1/result';
-  const captionStatusApi = 'http://localhost:8000/api/v1/status';
+  const presignedUrlApi = 'http://localhost:8000/api/v1/upload/generate-presigned-url';
+  const captionRequestApi = 'http://localhost:8000/api/v1/caption/request';
+  const captionResultApi = 'http://localhost:8000/api/v1/caption/result';
+  const captionStatusApi = 'http://localhost:8000/api/v1/caption/status';
 
   useEffect(() => {
     if (!accessToken) navigate('/login');

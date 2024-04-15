@@ -19,8 +19,8 @@ spec:
     spec:
       containers: 
         - name: caption
-          image: caption-service:latest 
-          imagePullPolicy: Never
+          image: ""
+          imagePullPolicy: Always
 
           envFrom:
             - configMapRef: 

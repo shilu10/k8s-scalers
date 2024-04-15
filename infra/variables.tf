@@ -67,7 +67,7 @@ variable "ng_iam_role_name" {
 
 variable "ng_instance_type" {
   type    = list(string)
-  default = ["t3.micro"]
+  default = ["t3a.medium"]
 }
 
 variable "eks_version" {
@@ -162,7 +162,7 @@ variable "caption_worker_iam_policy_name" {
 
 variable "caption_worker_sa_name" {
   type    = string
-  default = "caption_worker_sa"
+  default = "caption-sa"
 }
 
 variable "upload_service_iam_role_name" {
@@ -177,7 +177,7 @@ variable "upload_service_iam_policy_name" {
 
 variable "upload_service_sa_name" {
   type    = string
-  default = "upload_service_sa"
+  default = "upload-sa"
 }
 
 variable "upload_service_db" {
@@ -301,7 +301,7 @@ variable "auth_service_iam_role_name" {
 
 variable "auth_service_sa_name" {
   type = string 
-  default = "auth_service_sa"
+  default = "auth-sa"
 }
 
 variable "auth_service_policy_name" {

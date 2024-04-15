@@ -18,8 +18,9 @@ spec:
     spec:
       containers:
         - name: auth
-          image: auth-service:latest 
-          imagePullPolicy: Never
+          image: ""
+          imagePullPolicy: Always
+          
           
           envFrom: 
             - configMapRef:
@@ -27,3 +28,5 @@ spec:
 
             - secretRef:
                 name: auth-secret
+
+      serviceAccountName: auth-sa
