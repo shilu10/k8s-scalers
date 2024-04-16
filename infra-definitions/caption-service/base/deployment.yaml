@@ -19,7 +19,7 @@ spec:
     spec:
       containers: 
         - name: caption
-          image: ""
+          image: "533267453751.dkr.ecr.us-east-1.amazonaws.com/caption_service:latest"
           imagePullPolicy: Always
 
           envFrom:

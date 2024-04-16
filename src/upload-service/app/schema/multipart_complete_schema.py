@@ -1,6 +1,11 @@
 from marshmallow import Schema, fields, validate, ValidationError
 
 
+class PartSchema(Schema):
+    part_number = fields.Int(required=True)
+    etag = fields.Str(required=True)
+
+
 class MultiPartCompleteSchema(Schema):
     """
     Schema to validate the structure of the multipart completion request.
@@ -42,11 +47,9 @@ class MultiPartCompleteSchema(Schema):
         }
     )
 
-    parts = fields.List(
-        required=True, 
+    parts = fields.List(fields.Nested(PartSchema), required=True, 
         validate=validate.Length(min=1),  # Ensures the list has at least one item.
         error_messages={
             "required": "Parts information is required.",
             "invalid": "Parts must be provided as a list with at least one part."
-        }
-    )
+        })

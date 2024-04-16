@@ -12,7 +12,6 @@ class CPUStressSchema(Schema):
     """
     load = fields.Integer(
         required=True,
-        description="CPU load percentage (between 20 and 95).",
         validate=validate.Range(min=20, max=95),
         error_messages={
             "required": "CPU load is required.",
@@ -23,7 +22,6 @@ class CPUStressSchema(Schema):
 
     duration = fields.Integer(
         required=True,
-        description="Duration of the stress test in seconds (10–120).",
         validate=validate.Range(min=10, max=120),
         error_messages={
             "required": "Duration is required.",
@@ -34,7 +32,6 @@ class CPUStressSchema(Schema):
 
     workers = fields.Integer(
         required=False,
-        description="Number of CPU worker threads (0–24). Optional.",
         validate=validate.Range(min=0, max=24),
         error_messages={
             "invalid": "Workers must be an integer.",
@@ -54,7 +51,6 @@ class MemoryStressSchema(Schema):
     """
     mem_bytes = fields.String(
         required=True,
-        description="Amount of memory to consume (e.g., '500M', '1G').",
         error_messages={
             "required": "Memory size is required.",
             "invalid": "Memory size must be a string (e.g., '512M')."
@@ -63,7 +59,6 @@ class MemoryStressSchema(Schema):
 
     duration = fields.Integer(
         required=True,
-        description="Duration of the stress test in seconds (10–120).",
         validate=validate.Range(min=10, max=120),
         error_messages={
             "required": "Duration is required.",
@@ -74,7 +69,6 @@ class MemoryStressSchema(Schema):
 
     vm_workers = fields.Integer(
         required=True,
-        description="Number of virtual memory workers (1–20).",
         validate=validate.Range(min=1, max=20),
         error_messages={
             "required": "VM workers is required.",
@@ -97,7 +91,6 @@ class MemoryAndCpuStressSchema(Schema):
     """
     mem_bytes = fields.String(
         required=True,
-        description="Amount of memory to consume (e.g., '500M').",
         error_messages={
             "required": "Memory size is required.",
             "invalid": "Memory size must be a string (e.g., '512M')."
@@ -106,7 +99,6 @@ class MemoryAndCpuStressSchema(Schema):
 
     load = fields.Integer(
         required=True,
-        description="CPU load percentage (20–95).",
         validate=validate.Range(min=20, max=95),
         error_messages={
             "required": "CPU load is required.",
@@ -117,7 +109,6 @@ class MemoryAndCpuStressSchema(Schema):
 
     duration = fields.Integer(
         required=True,
-        description="Duration in seconds (10–120).",
         validate=validate.Range(min=10, max=120),
         error_messages={
             "required": "Duration is required.",
@@ -128,7 +119,6 @@ class MemoryAndCpuStressSchema(Schema):
 
     workers = fields.Integer(
         required=False,
-        description="Number of CPU worker threads (0–24).",
         validate=validate.Range(min=0, max=24),
         error_messages={
             "invalid": "Workers must be an integer.",
@@ -138,7 +128,6 @@ class MemoryAndCpuStressSchema(Schema):
 
     vm_workers = fields.Integer(
         required=True,
-        description="Number of virtual memory workers (1–20).",
         validate=validate.Range(min=1, max=20),
         error_messages={
             "required": "VM workers is required.",

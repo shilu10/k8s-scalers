@@ -4,8 +4,7 @@ metadata:
   name: upload-config
 
 data:
-  OBJECT_STORE_BUCKET_NAME: "stress-app"
-  RABBITMQ_QUEUE_NAME: stress 
+  OBJECT_STORE_BUCKET_NAME: "stress-app-video-bucket-example-1"
   S3_REGION: us-east-1
   PRESIGNED_URL_EXPIRATION: "1600"
   LOG_DIR: logs

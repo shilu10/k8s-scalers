@@ -19,3 +19,8 @@ def create_presigned_url_from_s3_url(s3_url: str, s3_client, expiration=3600):
     )
 
     return presigned_url
+
+
+def url_encode(text):
+    from urllib.parse import quote
+    return quote(text, safe='')

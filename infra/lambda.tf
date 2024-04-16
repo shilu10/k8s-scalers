@@ -49,7 +49,7 @@ resource "aws_iam_role_policy" "object_creator" {
       Effect = "Allow",
       Action = local.object_creator_action
       Resource = [
-        #module.s3_bucket.s3_bucket_arn,
+        "${module.s3_bucket.s3_bucket_arn}/*",
         "arn:aws:logs:*:*:*"
       ]
     }]
@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "email_notifier" {
       {
         Effect   = "Allow",
         Action   = local.email_notifier_action,
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = "arn:aws:logs:*:*:*"   
       }
     ]
   })
@@ -109,3 +109,13 @@ resource "aws_lambda_function" "stress_app" {
   tags = var.stress_app_tags
 }
 
+
+resource "aws_lambda_permission" "allow_sns" {
+  for_each = aws_lambda_function.stress_app
+
+  statement_id  = "AllowExecutionFromSNS-${each.key}"
+  action        = "lambda:InvokeFunction"
+  function_name = each.value.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.stress_app.arn
+}

@@ -115,8 +115,7 @@ locals{
         "s3:GetObject",
         "s3:ListMultipartUploadParts",
         "s3:AbortMultipartUpload",
-        "s3:CreateMultipartUpload",
-        "s3:CompleteMultipartUpload"
+      
   ]
 } 
 
@@ -129,7 +128,7 @@ resource "aws_iam_role_policy" "upload_service" {
     Statement = [{
       Effect   = "Allow",
       Action   = local.upload_service_actions
-      Resource = module.s3_bucket.s3_bucket_arn
+      Resource = "${module.s3_bucket.s3_bucket_arn}/*"   # /* at end of this
     }]
   })
 }

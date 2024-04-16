@@ -12,7 +12,6 @@ class PreSignedUrlSchema(Schema):
 
     filename = fields.String(
         required=True,
-        description="Name of the file to be uploaded (minimum 5 characters).",
         validate=validate.Length(min=5),
         error_messages={
             "required": "Filename is required.",
@@ -23,7 +22,6 @@ class PreSignedUrlSchema(Schema):
 
     filesize = fields.Integer(
         required=True,
-        description="Size of the file in bytes.",
         validate=validate.Range(min=1),
         error_messages={
             "required": "Filesize is required.",

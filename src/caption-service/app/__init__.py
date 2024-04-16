@@ -25,7 +25,12 @@ def create_app():
 
     # Initialize RabbitMQ
     with app.app_context():
-        init_rabbitmq_connection()
+        init_rabbitmq_connection(
+            broker_id=app.config.get("MQ_BROKER_ID"), 
+            region="us-east-1",
+            username=app.config.get("MQ_USERNAME"),
+            password=app.config.get("MQ_PASSWORD")
+        )
 
     # Register Blueprints
     app.register_blueprint(caption_bp, url_prefix='/api/v1')

@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/part-of: stress-app
     app.kubernetes.io/managed-by: kustomize
 spec:
-  replicas: 5
+  replicas: 2
   strategy:
     rollingUpdate:
       maxSurge: 2
@@ -23,9 +23,8 @@ spec:
     spec: 
       containers:
         - name: caption-worker 
-          image: ""
+          image: "533267453751.dkr.ecr.us-east-1.amazonaws.com/caption_worker:latest"
           imagePullPolicy: Always 
-          
           
           envFrom:
             - configMapRef:

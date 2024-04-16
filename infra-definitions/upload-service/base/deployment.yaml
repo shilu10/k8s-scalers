@@ -19,7 +19,7 @@ spec:
     spec: 
       containers:
         - name: upload
-          image: ""
+          image: "533267453751.dkr.ecr.us-east-1.amazonaws.com/upload_service:latest"
           imagePullPolicy: Always 
           
           envFrom:

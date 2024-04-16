@@ -86,7 +86,7 @@ variable "private_subnets" {
 
   validation {
     condition     = length(var.azs) == length(var.private_subnets)
-    error_message = "public_subnets must be the same length as azs"
+    error_message = "private_subnet must be the same length as azs"
   }
 
 }
@@ -307,4 +307,35 @@ variable "auth_service_sa_name" {
 variable "auth_service_policy_name" {
   type =string
   default = "auth_service_policy"
+}
+
+### aws mq 
+variable "rabbitmq_broker_name" {
+  type = string 
+  default = "stress-app-mq"
+}
+
+variable "rabbitmq_engine_version" {
+  type = string 
+  default = "3.13"
+}
+
+variable "rabbitmq_host_instance_type" {
+  type = string 
+  default = "mq.t3.micro"
+}
+
+variable "rabbitmq_deployment_mode" {
+  type = string 
+  default = "SINGLE_INSTANCE"
+}
+
+variable "rabbit_mq_username" {
+  type = string 
+  default = "shilash"
+}
+
+variable "rabbit_mq_password" {
+  type = string 
+  default = "18Bit048@123"
 }

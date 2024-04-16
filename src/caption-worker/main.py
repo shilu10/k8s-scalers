@@ -7,7 +7,8 @@ from deepgram_transcript import stream_from_s3
 from logger import setup_rotating_logger
 import threading
 from s3_client import get_s3_client
-from utils import create_presigned_url_from_s3_url
+from utils import create_presigned_url_from_s3_url, url_encode
+import ssl 
 
 
 # initialize config
@@ -19,18 +20,15 @@ _logger = setup_rotating_logger()
 # Initialize Redis for tracking job status
 redis_client = get_redis_client(config.REDIS_HOST, config.REDIS_PORT, config.REDIS_DB)
 
-# Establish connection to RabbitMQ
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(
-        host=config.RABBITMQ_HOST,
-        heartbeat=600,
-        blocked_connection_timeout=300
-    )
-)
-channel = connection.channel()
 
-# Declare the queue for receiving tasks
-channel.queue_declare(queue=config.RABBITMQ_QUEUE_NAME, durable=False)
+url = f"amqps://{config.MQ_USERNAME}:{url_encode(config.MQ_PASSWORD)}@{config.MQ_BROKER_ID}.{config.MQ_ENDPOINT_SUFFIX}:5671/"
+parameters = pika.URLParameters(url)
+ssl_context = ssl.create_default_context()
+parameters.ssl_options = pika.SSLOptions(context=ssl_context)
+
+connection = pika.BlockingConnection(parameters)
+channel = connection.channel()
+channel.queue_declare(queue=config.MQ_QUEUE_NAME, durable=True)
 
 
 def run_job_in_thread(video_url, presigned_video_url, job_id):
@@ -77,7 +75,7 @@ def process_job(ch, method, properties, body):
 
 # Start consuming messages
 channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue=config.RABBITMQ_QUEUE_NAME, on_message_callback=process_job)
+channel.basic_consume(queue=config.MQ_QUEUE_NAME, on_message_callback=process_job)
 
 _logger.info("Worker is waiting for tasks...")
 channel.start_consuming()

@@ -4,6 +4,6 @@ metadata:
   name: caption-worker-config
 
 data:
-  RABBITMQ_QUEUE_NAME: "stress"
+  MQ_QUEUE_NAME: "stress"
   DEEPGRAM_WS_URL: "wss://api.deepgram.com/v1/listen?punctuate=true"
   AWS_REGION: "us-east-1"
