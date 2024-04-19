@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+  - ../../../../infra-definitions/auth-service/base/
+  - ../../../../infra-definitions/stress-app/base/
+  - hpa.yaml
+
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/name: auth-service
+
+configMapGenerator:
+  - name: auth-stress-cpu-config
+    literals:
+      - NAMESPACE="dev"
+      - LABEL_SELECTOR="app.kubernetes.io/name=auth-service"
+      - ENDPOINT="auth-service.dev.svc.cluster.local"
+      - PORT="8001"
+      - LOAD="85"
+      - VM_WORKERS="1"
+      - DURATION="60"
+      - WORKERS="1"
+      - STRESS_TYPE="cpu"
+      - MEM_BYTES="10"
+

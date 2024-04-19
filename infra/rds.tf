@@ -23,8 +23,9 @@ resource "aws_security_group_rule" "mysql_from_eks" {
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.rds_mysql_sg.id  # for now add 0.0.0.0 anywhere 
-  source_security_group_id = aws_security_group.eks_nodes_sg.id
+  security_group_id        = aws_security_group.rds_mysql_sg.id  
+  #source_security_group_id = aws_security_group.eks_nodes_sg.id # this is more granular than vpc cidr 
+  cidr_blocks       = [module.vpc.vpc_cidr_block]
 }
 
 

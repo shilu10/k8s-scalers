@@ -1,11 +1,16 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, Response
 from flask import current_app as app
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Summary
+import random, time
 
 
 health_bp = Blueprint("health_bp", __name__)
+REQUESTS_PER_SECOND = Summary('requests_per_second', 'Custom RPS metric')
 
+
+@REQUESTS_PER_SECOND.time()
 @health_bp.route("/healthz")
-def index():
+def health():
     """
     Health check endpoint that checks the status of the application.
     
@@ -26,3 +31,8 @@ def index():
         # Catch any unexpected errors
         app.logger.error(f"Unexpected error during health check: {str(e)}")
         return jsonify({"success": False, "message": "Internal Server Error"}), 500
+
+
+@health_bp.route("/metrics")
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)

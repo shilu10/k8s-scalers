@@ -1,0 +1,23 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: auth-service-vpa-mem
+
+spec:
+  targetRef:                # REQUIRED
+    apiVersion: apps/v1     # Should match your workload type
+    kind: Deployment
+    name: auth-deployment
+
+  updatePolicy:
+    updateMode: "Auto"      # Off | Initial | Auto
+
+  resourcePolicy:           # (Optional) Per-container rules
+    containerPolicies:
+      - containerName: "*"  # "*" applies to all containers
+        minAllowed:
+          memory: "128Mi"
+          
+        maxAllowed:
+          memory: "512Mi"
+        controlledResources: ["memory"]  # or leave empty for all

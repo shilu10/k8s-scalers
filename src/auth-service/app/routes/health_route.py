@@ -1,24 +1,38 @@
-from flask import jsonify, Blueprint
-from ..core.response_builder import error_response, success_response
+from flask import Blueprint, request, jsonify, Response
+from flask import current_app as app
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Summary
+import random, time
 
 
-# Create a Blueprint for health check endpoint
 health_bp = Blueprint("health_bp", __name__)
+REQUESTS_PER_SECOND = Summary('requests_per_second', 'Custom RPS metric')
 
 
-@health_bp.route("/healthz", methods=["GET"])
+@REQUESTS_PER_SECOND.time()
+@health_bp.route("/healthz")
 def health():
     """
-    Health check endpoint.
-
+    Health check endpoint that checks the status of the application.
+    
+    ---
     Returns:
-        JSON response indicating the health status of the application.
-        Example: {"success": True}, HTTP status 200 on success.
+    - 200 OK: Indicates the application is running correctly.
+    - 500 Internal Server Error: If any unexpected error occurs.
     """
     try:
-        # You can insert additional health checks here (e.g., DB, cache, etc.)
-        return success_response(data="Healthz response", status_code=200)
-    
+        # Log health check request
+        app.logger.info("Healthz route called.")
+        
+        # Check application health (for more complex systems, this can include DB, Redis checks, etc.)
+        # For simplicity, we assume the application is healthy if this route is hit successfully.
+        return jsonify({"success": True}), 200
+
     except Exception as e:
-        # Log the error here if you have a logger
-        return error_response(message="Internal Server Error", status_code=500)
+        # Catch any unexpected errors
+        app.logger.error(f"Unexpected error during health check: {str(e)}")
+        return jsonify({"success": False, "message": "Internal Server Error"}), 500
+
+
+@health_bp.route("/metrics")
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)

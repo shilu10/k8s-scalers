@@ -33,7 +33,8 @@ resource "aws_security_group_rule" "redis_from_eks" {
   to_port                  = 6379
   protocol                 = "tcp"
   security_group_id        = aws_security_group.redis_sg.id
-  source_security_group_id = aws_security_group.eks_nodes_sg.id
+  # source_security_group_id = aws_security_group.eks_nodes_sg.id  this is more granular than vpc cidr
+  cidr_blocks       = [module.vpc.vpc_cidr_block]
 }
 
 
