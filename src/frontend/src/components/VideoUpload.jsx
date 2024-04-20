@@ -54,7 +54,7 @@ export default function VideoUpload({ getPresignedUrlEndpoint, onUploadSuccess }
       }
 
       // Step 3: Complete the upload
-      const completeRes = await fetch('http://localhost:8000/api/v1/complete-multipart', {
+      const completeRes = await fetch('http://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com/api/v1/upload/complete-multipart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

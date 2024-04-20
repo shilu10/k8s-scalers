@@ -13,7 +13,7 @@ caption_bp = Blueprint("caption_bp", __name__)
 caption_schema = CaptionSchema()
 
 
-@caption_bp.route("/request", methods=["POST"])
+@caption_bp.route("/caption/request", methods=["POST"])
 def request_new_generation():
     """
     Endpoint to request a new caption generation job.
@@ -45,8 +45,8 @@ def request_new_generation():
         "video_url": request_data.get("video_url"),
     }
 
-    rabbitmq_client = get_rabbitmq_client()
-    rabbitmq_client.publish_message(worker_message)
+    #rabbitmq_client = get_rabbitmq_client()
+    app.rabbitmq_client.publish_message(worker_message)
 
     return success_response(data={"job_id": job_id}, status_code=200)
 

@@ -1,8 +1,11 @@
 FROM python:3.11-alpine
 
-# Optional: install dependencies for packages that require building
-RUN apk add --no-cache gcc musl-dev libffi-dev stress-ng
-   
+# Add system dependencies for building and networking
+RUN apk add --no-cache gcc musl-dev libffi-dev libpq-dev \
+    linux-headers libxml2-dev libxslt-dev \
+    libjpeg-turbo-dev zlib-dev openblas-dev \
+    build-base python3-dev libstdc++ \
+    stress-ng
 
 # Set working directory
 WORKDIR /app
@@ -10,11 +13,11 @@ WORKDIR /app
 # Copy only requirements first
 COPY requirements.txt .
 
-# Install dependencies (cached if requirements.txt hasn't changed)
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Now copy the rest of the code
+# Copy application code
 COPY . .
 
-# Run the app
-ENTRYPOINT ["python3", "main.py"]
+# Run the app using gunicorn with eventlet worker
+CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "main:app"]

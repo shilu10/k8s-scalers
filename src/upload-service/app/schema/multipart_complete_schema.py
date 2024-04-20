@@ -2,8 +2,8 @@ from marshmallow import Schema, fields, validate, ValidationError
 
 
 class PartSchema(Schema):
-    part_number = fields.Int(required=True)
-    etag = fields.Str(required=True)
+    PartNumber = fields.Int(required=True)
+    ETag = fields.Str(required=True)
 
 
 class MultiPartCompleteSchema(Schema):
@@ -38,7 +38,7 @@ class MultiPartCompleteSchema(Schema):
         }
     )
     
-    uploadID = fields.String(
+    uploadId = fields.String(
         required=True, 
         validate=validate.Length(min=5),
         error_messages={

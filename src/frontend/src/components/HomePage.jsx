@@ -13,7 +13,11 @@ import io from 'socket.io-client';
 import VideoUpload from './VideoUpload';
 import GenerateCaptions from './GenerateCaptions';
 
-const socket = io('http://localhost:5000'); // Make sure this matches your backend host
+const socket = io("https://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com", {
+  path: "/ws/socket.io",
+  transports: ["websocket", "polling"]
+});
+
 
 const HomePage = () => {
   const [loading, setLoading] = useState(false);
@@ -25,10 +29,10 @@ const HomePage = () => {
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
 
-  const presignedUrlApi = 'http://localhost:8000/api/v1/upload/generate-presigned-url';
-  const captionRequestApi = 'http://localhost:8000/api/v1/caption/request';
-  const captionResultApi = 'http://localhost:8000/api/v1/caption/result';
-  const captionStatusApi = 'http://localhost:8000/api/v1/caption/status';
+  const presignedUrlApi = 'http://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com/api/v1/upload/generate-presigned-url';
+  const captionRequestApi = 'http://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com/api/v1/caption/request';
+  const captionResultApi = 'http://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com/api/v1/caption/result';
+  const captionStatusApi = 'http://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com/api/v1/caption/status';
 
   useEffect(() => {
     if (!accessToken) navigate('/login');

@@ -20,14 +20,11 @@ spec:
     spec: 
       containers:
         - name: gateway
-          image: ""
+          image: "533267453751.dkr.ecr.us-east-1.amazonaws.com/gateway_service:latest"
           imagePullPolicy: Always 
           
           envFrom:
             - configMapRef: 
                 name: gateway-config
 
-            - secretRef:
-                name: gateway-secret
-              
       restartPolicy: Always 

@@ -4,9 +4,9 @@ metadata:
   name: gateway-config
 
 data:
-  AUTH_SERVICE: "auth-service.svc.dev.cluster.local"
-  UPLOAD_SERVICE: "upload-service.svc.dev.cluster.local"
-  CAPTION_SERVICE: "caption-service.svc.dev.cluster.local"
+  AUTH_SERVICE: "auth-service.dev.svc.cluster.local"
+  UPLOAD_SERVICE: "upload-service.dev.svc.cluster.local"
+  CAPTION_SERVICE: "caption-service.dev.svc.cluster.local"
 
   AUTH_SERVICE_PORT: "8001"
   UPLOAD_SERVICE_PORT: "8002"

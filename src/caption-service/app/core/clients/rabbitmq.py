@@ -85,6 +85,7 @@ def init_rabbitmq_connection(broker_id, region, username, password, queue_name="
 def get_rabbitmq_client():
     if not _rabbitmq_client:
         raise Exception("RabbitMQ client not initialized. Call init_rabbitmq_connection() first.")
+    
     return _rabbitmq_client
 
 def close_rabbitmq_connection():

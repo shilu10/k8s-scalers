@@ -61,4 +61,5 @@ def complete_multipart_upload():
     Proxy to upload service for completing a multipart upload.
     """
     payload = request.get_json()
+    app.logger.error(f"{payload} payload")
     return forward_to_upload_service("/api/v1/complete-multipart", payload=payload)

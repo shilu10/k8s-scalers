@@ -65,7 +65,7 @@ resource "aws_iam_role_policy" "caption_worker" {
     Statement = [{
       Effect   = "Allow",
       Action   = local.caption_worker_iam_actions
-      Resource = module.s3_bucket.s3_bucket_arn
+      Resource = module.s3_bucket.s3_bucket_arn # need /*
     }]
   })
 }

@@ -60,7 +60,7 @@ def request_caption():
 
     return forward_to_caption_service(
         method="POST",
-        path="/api/v1/request",
+        path="/api/v1/caption/request",
         payload=payload,
         headers=headers
     )

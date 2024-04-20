@@ -1,19 +1,19 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: unified-ingress
+  name: caption-ingress
+  namespace: dev
   annotations:
+    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/enable-websockets: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    
 spec:
+  ingressClassName: nginx
   rules:
-    - host: "*"
-      http:
+    - http:
         paths:
-          # Route all /api/v1/* traffic to gw-svc
-          - path: /api/v1(/|$)(.*)
+          - path: /api/v1/auth
             pathType: Prefix
             backend:
               service:
@@ -21,20 +21,34 @@ spec:
                 port:
                   number: 8000
 
-          # Route everything else (e.g., /socket.io) to caption-service
-          - path: /socket.io(/|$)(.*)
+          - path: /api/v1/upload
             pathType: Prefix
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 8000
+
+          - path: /api/v1/caption
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 8000
+
+          - path: /ws/socket.io
+            pathType: ImplementationSpecific  # <--- FIXED HERE
             backend:
               service:
                 name: caption-service
                 port:
                   number: 5000
 
-          # Optional: Serve frontend assets or root page from caption-service
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: caption-service
+                name: nginx
                 port:
-                  number: 5000
+                  number: 80

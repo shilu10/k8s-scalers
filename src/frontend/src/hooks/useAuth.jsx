@@ -35,7 +35,7 @@ export const useAuth = () => {
 
       // Access token expired, try refresh
       try {
-        const res = await fetch('http://localhost:8000/api/v1/refresh', {
+        const res = await fetch('http://k8s-ingressn-nginxing-9c0e3c6e3c-6320565bdf6d884b.elb.us-east-1.amazonaws.com/api/v1/auth/refresh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh_token: refreshToken }),

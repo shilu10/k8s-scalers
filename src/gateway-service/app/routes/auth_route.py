@@ -77,3 +77,12 @@ def logout():
     """
     payload = request.get_json()
     return forward_request_to_auth("/api/v1/logout", payload=payload)
+
+
+@auth_bp.route("/auth/healthz", methods=["GET"])  # Changed from GET to POST
+def home():
+    """
+    Forwards logout request to the Auth Service.
+    """
+    payload = request.get_json()
+    return forward_request_to_auth("/api/v1/healthz", payload=payload)

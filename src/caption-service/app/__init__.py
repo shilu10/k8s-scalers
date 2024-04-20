@@ -13,6 +13,9 @@ from redis import Redis
 import atexit
 
 
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet", path="/ws/socket.io")
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -21,16 +24,19 @@ def create_app():
     setup_logger(app)
 
     # Initialize WebSocket
-    socketio = SocketIO(app, cors_allowed_origins="*")
+    #socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+    socketio.init_app(app)
+    app.extensions["socketio"] = socketio
 
     # Initialize RabbitMQ
-    with app.app_context():
-        init_rabbitmq_connection(
-            broker_id=app.config.get("MQ_BROKER_ID"), 
-            region="us-east-1",
-            username=app.config.get("MQ_USERNAME"),
-            password=app.config.get("MQ_PASSWORD")
-        )
+    #with app.app_context():
+    rabbitmq_client = init_rabbitmq_connection(
+                broker_id=app.config.get("MQ_BROKER_ID"), 
+                region="us-east-1",
+                username=app.config.get("MQ_USERNAME"),
+                password=app.config.get("MQ_PASSWORD")
+            )
+    app.rabbitmq_client = rabbitmq_client
 
     # Register Blueprints
     app.register_blueprint(caption_bp, url_prefix='/api/v1')
@@ -38,9 +44,9 @@ def create_app():
     app.register_blueprint(stress_bp, url_prefix="/api/v1")
 
     # Teardown RabbitMQ only
-    @app.teardown_appcontext
-    def shutdown_services(exception=None):
-        close_rabbitmq_connection()
+    #@app.teardown_appcontext
+    #def shutdown_services(exception=None):
+     #   close_rabbitmq_connection()
 
     # Start Redis pub-sub listener in background
     start_redis_listener(socketio, app)
@@ -65,4 +71,4 @@ def create_app():
     app.logger.info("MongoDB client initialized properly")
     app.logger.info("RabbitMQ and Redis clients initialized")
 
-    return app, socketio
+    return app#, socketio
