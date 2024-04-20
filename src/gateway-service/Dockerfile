@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run app
-ENTRYPOINT ["python3", "main.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "main:app"]

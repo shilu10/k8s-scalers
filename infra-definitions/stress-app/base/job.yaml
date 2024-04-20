@@ -1,27 +1,25 @@
-apiVersion: batch/v1 
+apiVersion: batch/v1
 kind: Job
 metadata:
   name: stress-job
+  namespace: dev
   labels:
-    app.kubernetes.io/instance: stress-dev 
-    app.kubernetes.io/part-of: stress-app 
+    app.kubernetes.io/instance: stress-dev
+    app.kubernetes.io/part-of: stress-app
     app.kubernetes.io/managed-by: kustomize
 
 spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: stress
   template:
-    metadata: 
+    metadata:
       labels:
         app.kubernetes.io/name: stress
-
     spec:
-      containers: 
+      containers:
         - name: stress
-          image: stress-app:latest 
-          imagePullPolicy: Never 
-          
+          image: 533267453751.dkr.ecr.us-east-1.amazonaws.com/stress_app:latest
           envFrom:
-            configMapRef:
-              name: stress-config
+            - configMapRef:
+                name: stress-config
+
+      serviceAccountName: stress-sa
+      restartPolicy: OnFailure

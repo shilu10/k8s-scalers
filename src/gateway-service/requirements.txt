@@ -3,3 +3,4 @@ requests
 flask-cors
 flask-jwt-extended
 PyJWT
+gunicorn

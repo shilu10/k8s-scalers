@@ -12,10 +12,10 @@ WORKDIR /app
 
 # Copy and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --default-timeout=100 --no-cache-dir -r requirements.txt
 
 # Copy app source code
 COPY . .
 
 # Run the app
-ENTRYPOINT ["python3", "main.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8002", "main:app"]

@@ -9,7 +9,7 @@ aws iam create-policy \
 eksctl create iamserviceaccount \
   --cluster stress-app-cluster \
   --namespace kube-system \
-  --name aws-load-balancer-controller-7 \
+  --name aws-load-balancer-controller-8 \
   --attach-policy-arn arn:aws:iam::533267453751:policy/AWSLoadBalancerControllerIAMPolicy \
   --approve
 
@@ -21,6 +21,6 @@ helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller \
   -n kube-system \
   --set clusterName=stress-app-cluster \
   --set serviceAccount.create=false \
-  --set serviceAccount.name=aws-load-balancer-controller-7 \
+  --set serviceAccount.name=aws-load-balancer-controller-8 \
   --set region=us-east-1 \
-  --set vpcId=vpc-0dbb0e8024169cf68
+  --set vpcId=vpc-0d8c7bc9ca2297783

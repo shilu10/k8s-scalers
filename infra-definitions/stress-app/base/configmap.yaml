@@ -4,12 +4,13 @@ metadata:
   name: stress-config
     
 data:
-  NAMESPACE: ""
-  LABEL_SELECTOR: ""
-  ENDPOINT: ""
-  PORT: ""
-  LOAD: ""
-  DURATION: ""
-  WORKERS: ""
-  STRESS_TYPE: ""
-  MEM_BYTES: ""
+  NAMESPACE: "dev"
+  LABEL_SELECTOR: "app.kubernetes.io/name=upload-service"
+  ENDPOINT: "upload-service.dev.svc.cluster.local"
+  PORT: "8002"
+  LOAD: "100"
+  VM_WORKERS: "1"
+  DURATION: "10"
+  WORKERS: "1"
+  STRESS_TYPE: "cpu_and_mem"
+  MEM_BYTES: "300"

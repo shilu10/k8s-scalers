@@ -12,4 +12,14 @@ module "s3_bucket" {
   versioning = {
     enabled = true
   }
+
+  cors_rule = [
+    {
+      allowed_headers = ["*"]
+      allowed_methods = ["GET", "POST", "PUT", "DELETE"]
+      allowed_origins = ["*"]
+      expose_headers  = ["ETag"]
+      max_age_seconds = 3000
+    }
+  ]
 }

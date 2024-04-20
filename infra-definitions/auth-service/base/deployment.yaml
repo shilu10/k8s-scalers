@@ -21,11 +21,17 @@ spec:
           image: "533267453751.dkr.ecr.us-east-1.amazonaws.com/auth_service:latest"
           imagePullPolicy: Always
           
+          resources:
+            requests:
+              cpu: "100m"         # Minimum CPU guaranteed
+              memory: "128Mi"     # Minimum memory guaranteed
+            limits:
+              cpu: "200m"         # Max CPU allowed
+              memory: "256Mi"     # Max memory allowed
           
           envFrom: 
             - configMapRef:
                 name: auth-config
-
             - secretRef:
                 name: auth-secret
 

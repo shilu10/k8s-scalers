@@ -6,3 +6,4 @@ kubernetes
 boto3
 redis
 pika 
+gunicorn

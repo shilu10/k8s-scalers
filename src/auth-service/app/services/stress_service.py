@@ -44,7 +44,6 @@ def stress_ng_mem(mem_bytes="256M", duration=10, vm_workers=1):
                 "--vm", str(vm_workers),
                 "--vm-bytes", str(mem_bytes),
                 "--vm-keep",
-                "--vm-ops", "0",
                 "--timeout", f"{duration}s"
             ],
             check=True
