@@ -1,13 +1,13 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: auth-service-vpa-mem
+  name: caption-service-vpa-initial
 
 spec:
   targetRef:                # REQUIRED
     apiVersion: apps/v1     # Should match your workload type
     kind: Deployment
-    name: auth-deployment
+    name: caption-deployment
 
   updatePolicy:
     updateMode: "Initial"      # Off | Initial | Auto

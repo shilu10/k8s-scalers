@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+  - ../../../../infra-definitions/caption-service/base/
+  - ../../../../infra-definitions/stress-app/base/
+  - vpa.yaml
+
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/name: caption-service
+
+configMapGenerator:
+  - name: caption-stress-config-just-recommend
+    literals:
+      - NAMESPACE="dev"
+      - LABEL_SELECTOR="app.kubernetes.io/name=caption-service"
+      - ENDPOINT="caption-service.dev.svc.cluster.local"
+      - PORT="5000"
+      - LOAD="85"
+      - VM_WORKERS="1"
+      - DURATION="60"
+      - WORKERS="1"
+      - STRESS_TYPE="cpu_and_mem"
+      - MEM_BYTES="250"
+
