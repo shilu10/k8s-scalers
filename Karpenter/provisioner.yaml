@@ -1,0 +1,15 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: "karpenter.sh/capacity-type"
+      operator: In
+      values: ["spot", "on-demand"]
+    - key: "node.kubernetes.io/instance-type"
+      operator: In
+      values: ["t3.large", "m5.large"]
+  providerRef:
+    name: default
+  ttlSecondsAfterEmpty: 60
