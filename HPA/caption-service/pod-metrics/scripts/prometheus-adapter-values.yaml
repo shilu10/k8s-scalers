@@ -1,0 +1,15 @@
+rules:
+  default: false
+
+  custom:
+    - seriesQuery: 'requests_per_second'
+      resources:
+        overrides:
+          namespace:
+            resource: namespace
+          pod:
+            resource: pod
+      name:
+        matches: "requests_per_second"
+        as: "requests_per_second"
+      metricsQuery: 'sum(rate(requests_per_second{namespace="{{namespace}}", pod=~"{{pod}}"}[1m])) by (pod)'

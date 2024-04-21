@@ -1,0 +1,1 @@
+helm repo add prometheus-community prometheus-community

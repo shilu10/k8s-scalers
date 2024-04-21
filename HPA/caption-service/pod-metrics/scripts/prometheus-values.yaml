@@ -1,0 +1,11 @@
+server:
+  extraScrapeConfigs:
+    - job_name: 'caption-service'
+      metrics_path: /metrics
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        # Match pods with label app=flask-app
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex: caption-service

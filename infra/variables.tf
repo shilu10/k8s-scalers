@@ -5,7 +5,7 @@ variable "vpc_cidr" {
 
 variable "azs" {
   type    = list(string)
-  default = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default = ["us-east-2a", "us-east-2b", "us-east-2c"]
 }
 
 variable "public_subnets" {
@@ -67,7 +67,7 @@ variable "ng_iam_role_name" {
 
 variable "ng_instance_type" {
   type    = list(string)
-  default = ["t3a.medium"]
+  default = ["t3.medium"]
 }
 
 variable "eks_version" {
