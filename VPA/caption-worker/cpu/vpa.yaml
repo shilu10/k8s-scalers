@@ -1,24 +1,23 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: caption-service-vpa-just-recommend
+  name: caption-service-vpa 
 
 spec:
   targetRef:                # REQUIRED
     apiVersion: apps/v1     # Should match your workload type
     kind: Deployment
-    name: caption-deployment
+    name: caption-job
 
   updatePolicy:
-    updateMode: "Off"      # Off | Initial | Auto
+    updateMode: "Auto"      # Off | Initial | Auto
 
   resourcePolicy:           # (Optional) Per-container rules
     containerPolicies:
       - containerName: "*"  # "*" applies to all containers
         minAllowed:
-          memory: "128Mi"
           cpu: "100m"
+          
         maxAllowed:
-          memory: "512Mi"
           cpu: "1000m"
-        controlledResources: ["memory", "cpu"]  # or leave empty for all
+        controlledResources: ["cpu"]  # or leave empty for all

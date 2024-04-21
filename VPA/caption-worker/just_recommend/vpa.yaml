@@ -1,13 +1,13 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: caption-service-vpa-just-recommend
+  name: caption-worker-vpa-just-recommend
 
 spec:
   targetRef:                # REQUIRED
     apiVersion: apps/v1     # Should match your workload type
     kind: Deployment
-    name: caption-deployment
+    name: caption-job
 
   updatePolicy:
     updateMode: "Off"      # Off | Initial | Auto
