@@ -5,7 +5,7 @@ variable "vpc_cidr" {
 
 variable "azs" {
   type    = list(string)
-  default = ["us-east-2a", "us-east-2b", "us-east-2c"]
+  default = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
 
 variable "public_subnets" {
@@ -259,6 +259,7 @@ variable "stress_app_tags" {
   default = {
     Env = "dev",
     App = "stress-app"
+    "karpenter.sh/discovery" = var.eks_cluster_name
   }
 }
 
@@ -337,5 +338,11 @@ variable "rabbit_mq_username" {
 
 variable "rabbit_mq_password" {
   type = string 
-  default = "18Bit048@123"
+  default = "xxx"
+}
+
+# karpenter 
+variable "default_instance_profile" {
+  type    = string
+  default = "KarpenterNodeInstanceProfile-stress-app-cluster"
 }

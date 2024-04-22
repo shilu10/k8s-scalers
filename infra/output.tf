@@ -56,3 +56,32 @@ output "rabbitmq_url" {
   value = cloudamqp_instance.instance.url
   sensitive = true
 }
+
+output "karpenter_role_arn" {
+  value = aws_iam_role.karpenter_controller.arn
+}
+
+output "rabbitmq_broker_id" {
+  description = "The ID of the RabbitMQ broker"
+  value       = aws_mq_broker.rabbitmq_broker.id
+}
+
+output "rabbitmq_broker_arn" {
+  description = "The ARN of the RabbitMQ broker"
+  value       = aws_mq_broker.rabbitmq_broker.arn
+}
+
+output "rabbitmq_broker_hostname" {
+  description = "The hostname of the RabbitMQ broker"
+  value       = aws_mq_broker.rabbitmq_broker.broker_instances[0].console_url
+}
+
+
+output "karpenter_node_instance_profile" {
+  value = aws_iam_instance_profile.karpenter_node.name
+}
+
+output "karpenter_node_role_arn" {
+  value = aws_iam_role.karpenter_node.arn
+}
+
