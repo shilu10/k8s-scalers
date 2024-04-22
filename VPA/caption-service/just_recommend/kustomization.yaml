@@ -15,7 +15,7 @@ labels:
       app.kubernetes.io/name: caption-service
 
 configMapGenerator:
-  - name: caption-stress-config-just-recommend
+  - name: caption-stress-config-just-recommend-vpa
     literals:
       - NAMESPACE="dev"
       - LABEL_SELECTOR="app.kubernetes.io/name=caption-service"

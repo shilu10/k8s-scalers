@@ -15,7 +15,7 @@ labels:
       app.kubernetes.io/name: auth-service
 
 configMapGenerator:
-  - name: auth-stress-cpu-config
+  - name: auth-stress-vpa-cpu-config
     literals:
       - NAMESPACE="dev"
       - LABEL_SELECTOR="app.kubernetes.io/name=auth-service"

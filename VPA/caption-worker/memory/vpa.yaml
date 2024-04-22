@@ -6,7 +6,7 @@ metadata:
 spec:
   targetRef:                # REQUIRED
     apiVersion: apps/v1     # Should match your workload type
-    kind: Deployment
+    kind: Job
     name: caption-job
 
   updatePolicy:

@@ -1,7 +1,7 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: caption-service-vpa-initial
+  name: caption-service-vpa-initial-recommend
 
 spec:
   targetRef:                # REQUIRED

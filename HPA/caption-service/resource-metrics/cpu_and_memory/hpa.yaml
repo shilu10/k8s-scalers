@@ -1,7 +1,7 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: caption-service-hpa-mem
+  name: caption-service-hpa-cpu-and-mem
 
 spec:
   scaleTargetRef:

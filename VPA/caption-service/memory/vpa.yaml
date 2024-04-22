@@ -1,7 +1,7 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: caption-service-mem 
+  name: caption-service-vpa-mem 
 
 spec:
   targetRef:                # REQUIRED

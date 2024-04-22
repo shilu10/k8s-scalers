@@ -15,7 +15,7 @@ labels:
       app.kubernetes.io/name: auth-service
 
 configMapGenerator:
-  - name: auth-stress-cpu-config
+  - name: auth-stress-initial-recommend-config
     literals:
       - NAMESPACE="dev"
       - LABEL_SELECTOR="app.kubernetes.io/name=auth-service"
@@ -25,6 +25,6 @@ configMapGenerator:
       - VM_WORKERS="1"
       - DURATION="60"
       - WORKERS="1"
-      - STRESS_TYPE="cpu"
-      - MEM_BYTES="10"
+      - STRESS_TYPE="cpu_and_mem"
+      - MEM_BYTES="200"
 

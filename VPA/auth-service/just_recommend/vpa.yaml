@@ -1,7 +1,7 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: auth-service-vpa-mem
+  name: auth-service-vpa-just-recommend
 
 spec:
   targetRef:                # REQUIRED
