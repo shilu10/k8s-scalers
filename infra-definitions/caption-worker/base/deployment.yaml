@@ -1,5 +1,5 @@
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment 
 metadata:
   name: caption-worker-job
   labels:
@@ -32,5 +32,6 @@ spec:
                 name: caption-worker-config
             - secretRef:
                 name: caption-worker-secret 
+
       serviceAccountName: caption-sa  
       restartPolicy: OnFailure

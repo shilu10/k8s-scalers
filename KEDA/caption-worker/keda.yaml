@@ -1,43 +1,22 @@
 apiVersion: keda.sh/v1alpha1
-kind: ScaledJob
+kind: ScaledObject
 metadata:
-  name: caption-worker-scaledjob
+  name: caption-worker-scaler
   namespace: default
 spec:
-  jobTargetRef:
-    template:
-      metadata:
-        labels:
-          app.kubernetes.io/name: caption-worker
-      spec:
-        containers:
-          - name: caption-worker
-            image: "533267453751.dkr.ecr.us-east-1.amazonaws.com/caption_worker:latest"
-            imagePullPolicy: Always
-            resources:
-              requests:
-                cpu: "100m"
-                memory: "128Mi"
-              limits:
-                cpu: "200m"
-                memory: "256Mi"
-            envFrom:
-              - configMapRef:
-                  name: caption-worker-config
-              - secretRef:
-                  name: caption-worker-secret
-        serviceAccountName: caption-sa
-        restartPolicy: OnFailure
-
-  pollingInterval: 10          # seconds between checks
-  successfulJobsHistoryLimit: 5
-  failedJobsHistoryLimit: 5
-  maxReplicaCount: 10          # max concurrent Jobs created by KEDA
+  scaleTargetRef:
+    name: caption-worker
+  pollingInterval: 10
+  cooldownPeriod: 30
+  minReplicaCount: 0
+  maxReplicaCount: 10
 
   triggers:
-  - type: rabbitmq
-    metadata:
-      host: "amqps://username:password@your-rabbitmq-url:5671/"
-      queueName: caption-tasks
-      mode: QueueLength
-      value: "5"
+    - type: rabbitmq
+      metadata:
+        hostFromEnv: RABBITMQ_HOST
+        queueName: stress 
+        mode: QueueLength
+        value: "5"
+      authenticationRef:
+        name: rabbitmq-auth
