@@ -6,10 +6,20 @@ spec:
   requirements:
     - key: "node.kubernetes.io/instance-type"
       operator: In
-      values: ["t3.medium", "t3.large"]
+      values:
+        - t3.medium
+        - t3.large
+        - t3a.medium
+        - t3a.large
+        - m5.large
+        - m5a.large
+        - c5.large
+        - c5a.large
+        - r5.large
+        - r5a.large
     - key: "topology.kubernetes.io/zone"
       operator: In
-      values: ["us-east-1a", "us-east-1b"]
+      values: ["us-east-1a"]
   limits:
     resources:
       cpu: 1000
