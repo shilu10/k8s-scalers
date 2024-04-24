@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metrics-server-autoscaler
-  namespace: kube-system
+  
 data:
   linear: |
     {
