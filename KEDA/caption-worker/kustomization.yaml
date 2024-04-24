@@ -4,11 +4,9 @@ kind: Kustomization
 namespace: kube-system
 
 resources:
-  - configmap.yaml
-  - deployment.yaml
-  - role.yaml
-  - rolebinding.yaml
-  - serviceaccount.yaml
+  - keda-authn.yaml 
+  - secret.yaml 
+  - keda.yaml 
 
 labels:
   - includeSelectors: true

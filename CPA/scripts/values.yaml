@@ -1,0 +1,44 @@
+replicaCount: 1  # Optional: CPA will override this
+
+autoscaling:
+  enabled: false  # Disable HPA so CPA can take control
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 200Mi
+
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+nodeSelector:
+  kubernetes.io/os: linux
+
+priorityClassName: system-cluster-critical
+
+args:
+  - --kubelet-preferred-address-types=InternalIP
+  - --kubelet-use-node-status-port
+  - --metric-resolution=15s
+  - --kubelet-insecure-tls  # Needed for EKS and many cloud providers
+
+service:
+  port: 443
+
+hostNetwork: true  # Needed for EKS to contact kubelet
+
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  name: metrics-server  # CPA will target this deployment/service account
+
