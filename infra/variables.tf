@@ -241,7 +241,9 @@ variable "stress_app_topic_name" {
 
 variable "google_app_password" {
   type    = string
-  default = "dummy"
+  default = "xxxx"
+  sensitive = true
+
 }
 
 variable "stress_app_bucket_name" {
@@ -345,4 +347,15 @@ variable "rabbit_mq_password" {
 variable "default_instance_profile" {
   type    = string
   default = "KarpenterNodeInstanceProfile-stress-app-cluster"
+}
+
+# amplify
+variable "github_token" {
+  type      = string
+  sensitive = true
+}
+
+# packer 
+output "packer_role_arn" {
+  value = aws_iam_role.packer.arn
 }

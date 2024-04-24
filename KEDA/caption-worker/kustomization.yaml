@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: dev 
 
 resources:
+  - ../../infra-definitions/caption-worker/base
   - keda-authn.yaml 
   - secret.yaml 
   - keda.yaml 

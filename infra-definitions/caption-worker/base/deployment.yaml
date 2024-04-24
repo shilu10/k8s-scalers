@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment 
 metadata:
-  name: caption-worker-job
+  name: caption-worker-deployment
   labels:
     app.kubernetes.io/instance: caption-worker-dev 
     app.kubernetes.io/part-of: stress-app

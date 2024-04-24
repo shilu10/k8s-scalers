@@ -11,27 +11,21 @@ packer {
   }
 }
 
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
-
 source "amazon-ebs" "ubuntu" {
   ami_name      = "ubuntu-22-04-custom-{{timestamp}}"
   instance_type = "t2.micro"
   region        = var.aws_region
-  source_ami    = "ami-0f9de6e2d2f067fca"
+  source_ami    = var.source_ami
   ssh_username  = "ubuntu"
   communicator  = "ssh"
 
+  ssh_keypair_name     = var.ssh_key_name
+  ssh_private_key_file = "scripts/${var.ssh_key_name}.pem"
+
   assume_role {
-      role_arn     = "arn:aws:iam::533267453751:role/for-stress-app-packer"
-      session_name = "SESSION_NAME"
+    role_arn     = var.packer_role_arn
+    session_name = "packer-session"
   }
-  
-  # Specify the SSH key pair for the EC2 instance
-  ssh_keypair_name      = "stress-app"          # Name of your key pair
-  ssh_private_key_file  = "stress-app.pem"  # Path to your private key
 
   tags = {
     Name = "stress-app-Ubuntu-AMI"
@@ -44,4 +38,9 @@ build {
   provisioner "shell" {
     script = "scripts/shell.sh"
   }
+
+  # Uncomment if using Ansible
+  # provisioner "ansible" {
+  #   playbook_file = "ansible/playbook.yaml"
+  # }
 }
