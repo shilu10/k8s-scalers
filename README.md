@@ -8,64 +8,6 @@
 ![Diagram](images/image4.png)
 ![Diagram](images/image5.jpg)
 
-# ⚖️ Kubernetes Scalers Demo with AI Captioning App
-
-This repository hosts a full-stack cloud-native application that acts as a **reference workload to test and demonstrate various Kubernetes autoscaling mechanisms**, including:
-
-- Horizontal Pod Autoscaler (HPA)
-- Vertical Pod Autoscaler (VPA)
-- KEDA (Kubernetes Event-Driven Autoscaler)
-- Karpenter (Just-in-Time Node Provisioning)
-- Cluster Autoscaler (CAS)
-- Cluster Proportional Autoscaler (CPA)
-
-The workload is a **video captioning platform** with AI integration, multiple microservices, and cloud-native infrastructure components.
-
----
-
-![System Architecture](https://github.com/YOUR_USERNAME/YOUR_REPO/blob/main/path/to/diagram-export-6-16-2025-7_48_44-AM.png?raw=true)
-
----
-
-## 🚀 Application Features
-
-- Upload videos using pre-signed S3 URLs
-- Generate captions using ML (via Caption Worker + Deepgram)
-- Store captions in MongoDB Atlas
-- Route and authenticate through Gateway and Auth Services
-- Publish events via RabbitMQ
-- Integrate with AWS services: Lambda, SNS, S3, RDS, Redis, EC2
-
----
-
-## ⚙️ Scalers Covered
-
-| Scaler | Description | Use Case in This App |
-|--------|-------------|----------------------|
-| **HPA** | Scales pods based on CPU/memory/custom metrics | Scales Caption Worker/Upload Service under load |
-| **VPA** | Automatically adjusts pod resource requests/limits | Applied to Caption Service and Auth Service |
-| **KEDA** | Scales based on external event sources like RabbitMQ | Used to scale Caption Worker based on RabbitMQ queue length |
-| **Karpenter** | Dynamically provisions nodes | Adds EC2 nodes when Caption Worker needs more capacity |
-| **CAS** | Scales cluster nodes based on pending pods | Reacts to pod pressure in EKS |
-| **CPA** | Scales core components based on cluster size (e.g., DNS) | Deployed as a control test |
-
----
-
-## 📦 Microservices Overview
-
-| Service         | Description |
-|-----------------|-------------|
-| **Gateway Service** | Entry point for internal traffic |
-| **Upload Service**  | Handles video uploads |
-| **Caption Worker**  | Asynchronous caption generation |
-| **Caption Service** | Stores and serves captions |
-| **Auth Service**    | Authn/Authz for users |
-
----
-
-
-
-
 
 # 🚀 Kubernetes Scalers Demo with AI Captioning App
 
@@ -271,16 +213,174 @@ Replace <your-dockerhub-username> and <service-name> accordingly.
 
 > ⚙️ Once you’ve built all the Docker images locally, Terraform will handle tagging and pushing them to ECR using a generated script (`scripts/image_push.sh`).
 
-## Infrastructure Provisioning
 
-### 1. Initialize the Terraform working directory
+--- 
+
+## 🖼️ Image Building (Redis AMI with Packer)
+
+Before building the AMI, make sure you update the AMI ID placeholder in the `auto.pkrvars.hcl` file:
+
+### 🔧 Set Base AMI
+Open the file:
+    infra/packer/auto.pkrvars.hcl
+
+
+1.Find and replace the placeholder value for `source_ami` like this:
+
+```hcl
+source_ami = "ami-xxxxxxxxxxxxxxxxx"  # ✅ Replace with latest Amazon Linux 
+```
+2 AMI or base image of your choice
+```bash
+aws ec2 describe-images \
+  --owners amazon \
+  --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" \
+  --query 'Images[*].[ImageId,Name]' \
+  --output text | sort -k2
+```
+
+## 🧱 Building AMIs with Packer
+
+Before deploying infrastructure, build the required AMI (e.g., Redis image) using [Packer](https://developer.hashicorp.com/packer).
+
+### 🔧 Steps to Build the AMI
+
+```bash
+cd infra/packer/
+
+packer init .
+
+packer fmt .
+
+packer build -var-file="auto.pkrvars.hcl" redis.pkr.hcl
+```
+
+
+## 🧱 Infrastructure Provisioning
+
+Terraform provisions all necessary AWS infrastructure components including:
+
+- VPC, Subnets, Internet Gateway, Route Tables
+- EKS Cluster & Node Groups (or Karpenter setup)
+- IAM Roles and Policies
+- MongoDB (via DocumentDB or EC2)
+- S3 Buckets, ECR Repos, and other dependencies
+
+### 🛠️ Step-by-Step
+
+```bash
+cd infra/
+
+# Initialize Terraform working directory
 terraform init
 
-### 2. Preview the infrastructure changes
+# Review planned actions
 terraform plan -var-file="terraform.tfvars"
 
-### 3. Apply the infrastructure changes
+# Apply infrastructure
 terraform apply -var-file="terraform.tfvars"
 
-### 4. (Optional) Destroy the infrastructure when done
+# optional destroy
 terraform destroy -var-file="terraform.tfvars"
+```
+
+### 🔗 Connect to the EKS Cluster
+
+Once the infrastructure is successfully provisioned via Terraform, update your local `kubeconfig` to interact with the EKS cluster using `kubectl`:
+
+```bash
+aws eks update-kubeconfig --region <your-aws-region> --name <your-cluster-name>
+```
+
+# 📈 Horizontal Pod Autoscaler (HPA)
+
+Horizontal Pod Autoscaler (HPA) automatically scales the number of pods in a Kubernetes Deployment or ReplicaSet based on observed CPU/memory usage or custom/external metrics.
+
+### ✅ HPA is enabled for the following services:
+
+| Service           | Supported Metric Types                                                               |
+|-------------------|----------------------------------------------------------------------------------------|
+| `auth-service`    | ✅ CPU, Memory (Resource) <br> ✅ Requests/sec (Pod) <br> ✅ Object <br> ✅ External    |
+| `caption-service` | ✅ CPU, Memory (Resource) <br> ✅ Requests/sec (Pod) <br> ✅ Object <br> ✅ External    |
+| `upload-service`  | ✅ CPU, Memory (Resource) <br> ✅ Requests/sec (Pod) <br> ✅ Object <br> ✅ External    |
+
+Each service supports HPA through organized  in the `HPA/` directory:
+
+### 📁 Structure
+
+HPA configurations are structured under:
+
+```
+HPA/
+├── <service-name>/
+│   ├── resource-metric/
+│   │   ├── cpu/
+│   │   ├── memory/
+│   │   └── cpu_and_memory/
+│   ├── pod-metric/
+│   │   └── request_per_second/
+│   └── external/
+```
+
+### 📌 HPA Usage Examples
+
+```bash
+# CPU-based HPA
+kubectl apply -k HPA/auth-service/resource-metric/cpu/
+
+# Memory-based HPA
+kubectl apply -k HPA/auth-service/resource-metric/memory/
+
+# CPU + Memory HPA
+kubectl apply -k HPA/auth-service/resource-metric/cpu_and_memory/
+
+# Request/sec Pod Metric HPA
+kubectl apply -k HPA/auth-service/pod-metric/request_per_second/
+```
+
+
+## 📊 Vertical Pod Autoscaler (VPA)
+
+VPA dynamically adjusts **resource requests** (not limits) based on historical usage patterns. It’s useful for right-sizing containers.
+
+### ✅ Services Using VPA
+
+| Service           | Modes Supported                                     |
+|-------------------|-----------------------------------------------------|
+| `auth-service`    | ✅ CPU <br> ✅ Memory <br> ✅ CPU+Memory <br> ✅ Initial <br> ✅ Off |
+| `caption-service` | ✅ CPU <br> ✅ Memory <br> ✅ CPU+Memory <br> ✅ Initial <br> ✅ Off |
+| `upload-service`  | ✅ CPU <br> ✅ Memory <br> ✅ CPU+Memory <br> ✅ Initial <br> ✅ Off |
+
+### 📁 Structure
+
+```
+VPA/
+├── <service-name>/
+│   ├── cpu/
+│   ├── memory/
+│   ├── cpu_and_memory/
+│   ├── initial_recommend/
+│   └── just_recommend/
+```
+
+### 📌 VPA Usage Examples
+
+```bash
+# Enable CPU-only VPA
+kubectl apply -k VPA/auth-service/cpu/
+
+# Enable Memory-only VPA
+kubectl apply -k VPA/auth-service/memory/
+
+# Enable CPU + Memory VPA
+kubectl apply -k VPA/auth-service/cpu_and_memory/
+
+# Initial mode (apply at pod creation)
+kubectl apply -k VPA/auth-service/initial_recommend/
+
+# Off mode (recommend only)
+kubectl apply -k VPA/auth-service/just_recommend/
+
+# View recommendations
+kubectl describe vpa <vpa-name>
+```
