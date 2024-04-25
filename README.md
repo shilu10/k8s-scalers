@@ -1,17 +1,9 @@
-# k8s scalers
-
-![Diagram](images/image1.png)
-![Diagram](images/image2.png)
-
-
-![Diagram](images/image3.jpg)
-![Diagram](images/image4.png)
-![Diagram](images/image5.jpg)
-
-
 # 🚀 Kubernetes Scalers Demo with AI Captioning App
 
 A scalable, microservices-based AI captioning platform deployed on Amazon EKS. Demonstrates dynamic autoscaling using Horizontal Pod Autoscaler (HPA), Vertical Pod Autoscaler (VPA), KEDA event-driven scaler, and Karpenter for efficient node provisioning. Built to showcase real-world autoscaling scenarios with API services and background workers.
+
+![Diagram](images/image1.png)
+
 
 
 ### 🔗 High-Level Workflow
@@ -322,6 +314,8 @@ HPA/
 │   └── external/
 ```
 
+
+
 ### 📌 HPA Usage Examples
 
 ```bash
@@ -337,6 +331,55 @@ kubectl apply -k HPA/auth-service/resource-metric/cpu_and_memory/
 # Request/sec Pod Metric HPA
 kubectl apply -k HPA/auth-service/pod-metric/request_per_second/
 ```
+
+## 🔧 Custom Metrics with Prometheus Adapter
+
+To enable **HPA with custom metrics** like `requests per second`, we use the **Prometheus Adapter** with `k8s-prometheus-adapter`.
+
+### 📁 Structure
+
+```
+.
+├── request_per_sec/
+│   ├── hpa.yaml                    # HPA using custom metric (e.g., HTTP RPS)
+│   └── kustomization.yaml
+└── scripts/
+    ├── prom-adapter-install.sh     # Installs Prometheus Adapter via Helm
+    ├── prom-install.sh             # Installs Prometheus stack (Prometheus + CRDs)
+    ├── prom-repo-add.sh            # Adds Helm repo
+    ├── prometheus-values.yaml      # Prometheus Helm values
+    └── prometheus-adapter-values.yaml # Prometheus Adapter config (custom metrics)
+```
+
+### 🛠️ Setup Instructions
+
+```bash
+# Add Prometheus community Helm repo
+bash scripts/prom-repo-add.sh
+
+# Install Prometheus stack
+bash scripts/prom-install.sh
+
+# Install Prometheus Adapter for custom metrics
+bash scripts/prom-adapter-install.sh
+```
+
+You can customize `prometheus-adapter-values.yaml` to match your custom metric names and target namespaces.
+
+### 📈 Example: Enable RPS-Based HPA
+
+```bash
+kubectl apply -k request_per_sec/
+```
+
+The metric can be exposed via a sidecar or your application using Prometheus format:
+
+```
+# Example application metric exposed
+http_requests_total{job="auth-service"} 1234
+```
+
+Prometheus Adapter will map this into a Kubernetes external metric for HPA to consume.
 
 
 ## 📊 Vertical Pod Autoscaler (VPA)
@@ -384,3 +427,56 @@ kubectl apply -k VPA/auth-service/just_recommend/
 # View recommendations
 kubectl describe vpa <vpa-name>
 ```
+
+# ⚡ KEDA (Kubernetes Event-Driven Autoscaler)
+
+**KEDA** automatically scales pods based on external event sources like message queues, Prometheus queries, or custom metrics. It’s ideal for workloads that spike in response to asynchronous events.
+
+## ✅ KEDA is enabled for:
+
+| Service         | Scaled Object            | Trigger Source         |
+|-----------------|--------------------------|------------------------|
+| `caption-worker`| RabbitMQ queue length    | `jobs` queue in RabbitMQ |
+
+KEDA monitors the `jobs` queue and dynamically adjusts the number of `caption-worker` pods based on queue depth.
+
+---
+
+## 📦 KEDA Directory Structure
+
+```bash
+.
+├── caption-worker
+│   ├── keda.yaml               # ScaledObject definition
+│   ├── keda-authn.yaml         # TriggerAuthentication for RabbitMQ
+│   ├── kustomization.yaml      # Kustomize support
+│   └── secret.yaml             # RabbitMQ connection secret
+└── scripts
+    └── install-keda.sh         # Automates KEDA installation
+```
+## 🛠️ Install KEDA in your cluster
+
+You can use the included helper script to install KEDA via Helm:
+
+```bash 
+scripts/install-keda.sh
+```
+
+This script installs the latest KEDA release into the keda namespace.
+
+## 🚀 Deploy KEDA for caption-worker
+
+Apply the configuration using Kustomize:
+
+```bash
+kubectl apply -k KEDA/caption-worker/
+```
+This deploys:
+
+ - A ScaledObject to define how many workers to run based on RabbitMQ queue length.
+
+ - A TriggerAuthentication to securely connect to RabbitMQ.
+
+ - A Secret with connection string.
+
+
