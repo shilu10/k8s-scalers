@@ -534,3 +534,94 @@ kubectl apply -k CPA/
 
 - RBAC resources (Role, RoleBinding, ServiceAccount)
 
+# 🧠 Cluster Autoscaler (CAS)
+
+The **Cluster Autoscaler (CAS)** monitors unschedulable pods and automatically adjusts the size of your Kubernetes cluster by adding or removing EC2 nodes in associated Auto Scaling Groups (ASGs).
+
+---
+
+## ✅ CAS Setup Overview
+
+| Component              | Description                                        |
+|------------------------|----------------------------------------------------|
+| `deployment.yaml`      | Deploys the Cluster Autoscaler to the EKS cluster |
+| `permissions.yaml`     | IAM permissions required by CAS                   |
+| `service-account.yaml` | IRSA-bound service account for CAS                |
+| `kustomization.yaml`   | Kustomize entry point                             |
+
+---
+
+## 📁 Directory Structure
+
+```bash
+.
+├── deployment.yaml
+├── kustomization.yaml
+├── permissions.yaml
+├── service-account.yaml
+└── scripts/
+    └── tag-asg.sh  # (Optional) Manual tagging script – not required if using Terraform
+```
+
+### ℹ️ Note: Auto Scaling Group tagging is handled automatically via Terraform, so scripts/tag-asg.sh is only provided for fallback or manual tagging scenarios.
+
+## 🔖 Terraform-based ASG Tagging
+Your ASGs must be tagged so that CAS can discover and manage them. These are handled automatically by Terraform:
+
+```hcl
+tags = {
+  "k8s.io/cluster-autoscaler/enabled"              = "true"
+  "k8s.io/cluster-autoscaler/${var.cluster_name}"  = "owned"
+}
+```
+
+This ensures CAS can identify which ASGs belong to the cluster and safely scale them.
+
+## 🚀 How to Deploy CAS
+1. Deploy CAS using Kustomize
+```bash
+kubectl apply -k CAS/
+```
+
+This applies:
+
+- CAS deployment
+
+- Required RBAC policies
+
+- IRSA-bound service account
+
+
+
+# 🚀 Karpenter: Dynamic Cluster Autoscaling for Kubernetes
+
+**Karpenter** is an open-source node autoscaler designed to launch just the right compute resources based on your pod needs — faster and more cost-efficient than Cluster Autoscaler.
+
+---
+
+## ✅ Setup Overview
+
+| Component         | Description                                              |
+|------------------|----------------------------------------------------------|
+| `provisioner.yaml` | Karpenter `Provisioner` CRD defines instance scaling behavior |
+| `scripts/`         | (Optional) Custom utility scripts (if needed)          |
+
+
+
+### 🔧 Note: All components including the controller, Helm chart, IRSA, and required IAM roles are **fully provisioned via Terraform**.
+
+---
+
+## 📁 Directory Structure
+
+```bash
+.
+├── provisioner.yaml         # Provisioner CR defining scaling logic
+└── scripts/                 # Optional helper scripts (if used)
+```
+
+### installing karpenter for specific cluster
+```bash
+kubectl apply -k karpenter/provision.yaml
+```
+it will be picked by karpenter controller installed via helm during terraform apply and dynamically provisioners nodes and terminates the nodes and also does the consolidation of nodess 
