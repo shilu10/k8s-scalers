@@ -480,3 +480,57 @@ This deploys:
  - A Secret with connection string.
 
 
+# ⚖️ Cluster Proportional Autoscaler (CPA)
+
+**Cluster Proportional Autoscaler (CPA)** automatically adjusts the number of replicas of critical cluster components (like CoreDNS) based on the cluster size — either by number of nodes or CPU cores.
+
+It’s particularly useful for workloads where performance needs to scale **proportionally with the cluster**, rather than application demand.
+
+---
+
+## ✅ CPA Setup Overview
+
+| Component        | Description                             |
+|------------------|-----------------------------------------|
+| `CoreDNS`        | Scaled based on node count or CPU cores |
+| `metrics-server` | Required for resource metrics           |
+
+---
+
+## 📦 CPA Directory Structure
+
+```bash
+.
+├── configmap.yaml         # Tuning rules (e.g., replica count formula)
+├── deployment.yaml        # CPA deployment manifest
+├── kustomization.yaml     # Kustomize support
+├── role.yaml              # RBAC: Role
+├── role-binding.yaml      # RBAC: RoleBinding
+├── sa.yaml                # ServiceAccount for CPA
+└── scripts
+    ├── install-metric-server.sh  # Installs metrics-server
+    └── values.yaml               # Optional Helm values
+```
+
+## 🛠️ How to Install CPA
+📌 Make sure metrics-server is running — required for CPA to monitor cluster size.
+
+1.Install metrics-server:
+```
+bash scripts/install-metric-server.sh
+```
+
+2.Deploy CPA using Kustomize:
+
+```bash
+kubectl apply -k CPA/
+```
+
+## This applies:
+
+- Deployment for the CPA controller
+
+- ConfigMap defining replica scaling logic
+
+- RBAC resources (Role, RoleBinding, ServiceAccount)
+
