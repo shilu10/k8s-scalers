@@ -2,7 +2,7 @@
 
 # Configure the CloudAMQP Provider
 provider "cloudamqp" {
-  apikey                         = "5e776d8f-e8df-4666-9342-190a8e39243f"
+  apikey                         = "xxx"
   enable_faster_instance_destroy = true  
 }
 

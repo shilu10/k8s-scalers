@@ -1,7 +1,7 @@
 # Configure the MongoDB Atlas Provider 
 provider "mongodbatlas" {
-  public_key = "rpsryguy"
-  private_key  = "b2f24c9e-9849-4065-9158-a6344e9ed79d"
+  public_key = "xxx"
+  private_key  = "xxx"
 }
 
 

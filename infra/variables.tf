@@ -268,7 +268,7 @@ variable "stress_app_tags" {
 variable "mongodb_atlas_org_id" {
   description = "MongoDB Atlas Organization ID"
   type        = string
-  default = "629d926ff4a9797476be7204"
+  default = "xxx"
 }
 
 variable "project_name" {

@@ -6,5 +6,5 @@ metadata:
 data:
   JWT_ACCESS_TOKEN_EXP_MIN: "10"
   JWT_REFRESH_TOKEN_EXP_DAY: "7"
-  TOPIC_ARN: "arn:aws:sns:us-east-1:533267453751:stress_app_auth_service_topic"
+  TOPIC_ARN: "arn:aws:sns:us-east-1:<acc-id>:stress_app_auth_service_topic"
   LOG_DIR: logs
